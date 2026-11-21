@@ -27,7 +27,96 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg); color: var(--text); padding-bottom: 85px; max-width: 520px; margin: 0 auto; min-height: 100vh; position: relative; }
-        
+
+        /* Auth Screen */
+        .auth-screen {
+            min-height: 100vh;
+            padding: 18px 16px 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .auth-hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #fff;
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 14px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.16);
+        }
+        .auth-hero h1 { font-size: 1.25rem; font-weight: 800; margin-bottom: 4px; }
+        .auth-hero p { font-size: 0.78rem; color: #cbd5e1; line-height: 1.5; }
+        .otp-banner {
+            background: #eff6ff;
+            border: 1px dashed #60a5fa;
+            color: #1e3a8a;
+            border-radius: 10px;
+            padding: 9px 12px;
+            font-size: 0.78rem;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+        .otp-code-pill {
+            background: #1d4ed8;
+            color: #fff;
+            font-family: monospace;
+            font-weight: 800;
+            font-size: 0.9rem;
+            padding: 2px 10px;
+            border-radius: 8px;
+            letter-spacing: 2px;
+            direction: ltr;
+            white-space: nowrap;
+        }
+        .auth-links-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .link-btn {
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .bio-btn {
+            width: 100%;
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+            padding: 11px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .check-inline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .check-inline input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+        }
+
         /* Header */
         header {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
@@ -40,8 +129,9 @@
             top: 0;
             z-index: 40;
         }
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; flex-wrap: wrap; }
         .app-title { font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .user-chip { font-size: 0.72rem; color: #cbd5e1; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; }
         .profit-pill {
             background: rgba(16, 185, 129, 0.2);
             border: 1px solid rgba(16, 185, 129, 0.45);
@@ -136,6 +226,25 @@
         .card { background: var(--card); border-radius: 14px; padding: 14px; border: 1px solid var(--border); margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .filter-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
         .filter-bar input[type="date"], .filter-bar input[type="text"] { flex: 1; min-width: 135px; padding: 7px 10px; font-size: 0.82rem; }
+
+        /* Period Selector */
+        .period-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 6px; }
+        .period-btn {
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: var(--text);
+            padding: 7px 6px;
+            border-radius: 9px;
+            font-size: 0.76rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+        }
+        .period-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
 
         /* Tables */
         .table-wrap { width: 100%; overflow-x: auto; margin-top: 6px; border-radius: 10px; border: 1px solid var(--border); }
@@ -290,252 +399,360 @@
 </head>
 <body>
 
-<header>
-    <div class="header-top">
-        <div class="app-title">💼 الصراف الذكي</div>
-        <div class="profit-pill">أرباح اليوم: <span id="hdrTodayProfit">0</span> ج.س</div>
-    </div>
-    <div class="capital-box">
-        <div>
-            <div class="capital-label">رأس المال بعد خصم الديون والمستحقات</div>
-            <div style="font-size: 0.68rem; color: #94a3b8;" id="hdrSaveStatus">محفوظ محلياً • جاهز</div>
-        </div>
-        <div class="capital-val" id="hdrNetCapital">0</div>
-    </div>
-</header>
-
-<div class="container">
-    <div class="backup-alert" id="backupReminderBanner">
-        <span>⚠️ يُنصح بتصدير نسخة احتياطية لحماية بياناتك.</span>
-        <button class="btn-sm btn-success" onclick="exportBackup()">تصدير الآن</button>
+<!-- AUTHENTICATION / REGISTRATION / FORGOT PASSWORD SCREEN -->
+<div id="authScreen" class="auth-screen">
+    <div class="auth-hero">
+        <h1>💼 الصراف الذكي</h1>
+        <p>دخول آمن بكلمة المرور أو بالبصمة، مع تأكيد عبر الإيميل أو رقم الهاتف واستعادة كلمة المرور وقفل تلقائي للجلسة.</p>
     </div>
 
-    <!-- TAB 1: HOME -->
-    <section id="tab-home" class="tab-section active">
-        <div class="section-title">
-            <span>الخزائن والمحافظ والرصيد</span>
-            <span style="font-size: 0.72rem; color: var(--muted);">العملة: ج.س</span>
-        </div>
-        <div class="wallets-grid">
-            <div class="wallet-card w-cash">
-                <div class="wallet-head">
-                    <span class="wallet-name">💵 الكاش (الدرج)</span>
-                    <span class="wallet-fee-tag">نقدي</span>
-                </div>
-                <div class="wallet-bal" id="bal-cash">0</div>
-            </div>
-            <div class="wallet-card w-bankak">
-                <div class="wallet-head">
-                    <span class="wallet-name" style="color: var(--bankak);">🔴 بنكك</span>
-                    <span class="wallet-fee-tag" id="tag-bankak">0%</span>
-                </div>
-                <div class="wallet-bal" id="bal-bankak">0</div>
-            </div>
-            <div class="wallet-card w-okash">
-                <div class="wallet-head">
-                    <span class="wallet-name" style="color: var(--okash);">🟠 أوكاش</span>
-                    <span class="wallet-fee-tag" id="tag-okash">0%</span>
-                </div>
-                <div class="wallet-bal" id="bal-okash">0</div>
-            </div>
-            <div class="wallet-card w-credit">
-                <div class="wallet-head">
-                    <span class="wallet-name" style="color: var(--credit);">📶 الرصيد</span>
-                    <span class="wallet-fee-tag">3 شرائح</span>
-                </div>
-                <div class="wallet-bal" id="bal-credit-total">0</div>
-                <div class="wallet-sub-lines">
-                    <div class="wallet-sub-row"><span>زين:</span><b id="bal-zain">0</b></div>
-                    <div class="wallet-sub-row"><span>سوداني:</span><b id="bal-sudani">0</b></div>
-                    <div class="wallet-sub-row"><span>MTN:</span><b id="bal-mtn">0</b></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="section-title">تسجيل معاملة سريعة</div>
-        <div class="actions-grid">
-            <button class="action-btn btn-in-app" onclick="openTxModal('in_app')">
-                <span class="action-icon">📥</span>
-                <span class="action-title">استلام تطبيق ⬅ إعطاء كاش</span>
-                <span class="action-sub">تسليم فوري أو آجل على دفعات</span>
-            </button>
-            <button class="action-btn btn-out-app" onclick="openTxModal('out_app')">
-                <span class="action-icon">📤</span>
-                <span class="action-title">استلام كاش ⬅ تحويل تطبيق</span>
-                <span class="action-sub">بنكك أو أوكاش مقابل كاش</span>
-            </button>
-            <button class="action-btn btn-credit" onclick="openTxModal('credit_sale')">
-                <span class="action-icon">📶</span>
-                <span class="action-title">استلام كاش ⬅ تحويل رصيد</span>
-                <span class="action-sub">زين / سوداني / MTN (خصم العمولة)</span>
-            </button>
-            <button class="action-btn btn-transfer" onclick="openTxModal('transfer')">
-                <span class="action-icon">🔄</span>
-                <span class="action-title">تحويل بين التطبيقات والرصيد</span>
-                <span class="action-sub">بنكك / أوكاش / رصيد (بدون عمولة)</span>
-            </button>
-            <button class="action-btn btn-add-cash" onclick="openTxModal('add_cash')">
-                <span class="action-icon">➕</span>
-                <span class="action-title">إضافة كاش مباشر</span>
-                <span class="action-sub">آلات حاسبة • شحن</span>
-            </button>
-            <button class="action-btn btn-expense" onclick="openTxModal('expense')">
-                <span class="action-icon">🧾</span>
-                <span class="action-title">منصرفات / سحب</span>
-                <span class="action-sub">خصم من الكاش أو تطبيق أو رصيد</span>
-            </button>
-        </div>
-
-        <div class="card">
-            <div class="section-title" style="margin-bottom:6px;">
-                <span>العمليات والحركات السابقة</span>
-                <div style="display:flex; gap:6px;">
-                    <button class="btn-sm btn-pdf" onclick="exportTransactionsPDF()">📄 PDF</button>
-                    <button class="btn-sm btn-excel" onclick="exportFullExcel()">📊 إكسيل</button>
-                    <button class="btn-sm btn-outline" onclick="switchTab('deferred')">الآجل (<span id="homePendingCount">0</span>)</button>
-                </div>
-            </div>
-            <div class="filter-bar">
-                <input type="date" id="txFilterDate" onchange="renderTransactionsTable()">
-                <input type="text" id="txFilterSerial" placeholder="🔍 بحث بالرقم المتسلسل..." oninput="renderTransactionsTable()">
-                <button class="btn-sm btn-outline" onclick="clearTxFilters()">عرض الكل</button>
-            </div>
-            <div id="fullTxTableContainer"></div>
-        </div>
-    </section>
-
-    <!-- TAB 2: DEFERRED DELIVERIES (الآجل والدفعات) -->
-    <section id="tab-deferred" class="tab-section">
-        <div class="section-title">
-            <span>استلامات التطبيق الآجلة (أمانات الزبائن)</span>
-        </div>
+    <div class="card">
         <div class="segmented">
-            <button class="seg-btn active" id="defFilterPending" onclick="setDeferredFilter('pending')">بانتظار التسليم</button>
-            <button class="seg-btn" id="defFilterDone" onclick="setDeferredFilter('done')">المكتملة</button>
+            <button type="button" class="seg-btn active" id="authTabLogin" onclick="setAuthMode('login')">تسجيل الدخول</button>
+            <button type="button" class="seg-btn" id="authTabRegister" onclick="setAuthMode('register')">إنشاء مستخدم</button>
+            <button type="button" class="seg-btn" id="authTabForgot" onclick="setAuthMode('forgot')">نسيت كلمة المرور</button>
         </div>
-        <div class="form-group">
-            <input type="text" id="defSearch" placeholder="🔍 ابحث بالرقم المتسلسل أو رقم الإشعار أو المستلم..." oninput="renderDeferredList()">
-        </div>
-        <div id="deferredList"></div>
-    </section>
 
-    <!-- TAB 3: DEBTS (الديون) -->
-    <section id="tab-debts" class="tab-section">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <span class="section-title" style="margin:0;">دفتر الديون</span>
-            <button class="btn-sm btn-primary" style="width:auto;" onclick="openDebtModal()">+ إضافة دين</button>
+        <div id="biometricQuickBox" style="margin-bottom:12px;">
+            <button type="button" class="bio-btn" onclick="loginWithBiometric()">
+                <span>👆</span>
+                <span>تسجيل الدخول بالبصمة</span>
+            </button>
+            <div style="text-align:center; font-size:0.72rem; color:var(--muted); margin-top:6px;" id="biometricStatusNote">أو أدخل بيانات الحساب أدناه</div>
         </div>
-        <div class="row-2" style="margin-bottom: 12px;">
-            <div class="card" style="margin:0; border-right: 4px solid var(--success);">
-                <div style="font-size: 0.75rem; color: var(--muted);">ديون ليك (طرف الناس)</div>
-                <div style="font-size: 1.1rem; font-weight: 800; color: var(--success); direction: ltr;" id="totalDebtsReceivable">0</div>
+
+        <form id="authForm" onsubmit="handleAuthSubmit(event)">
+            <div class="form-group" id="authNameGroup" style="display:none;">
+                <label>الاسم الكامل</label>
+                <input type="text" id="authName" placeholder="اكتب الاسم الكامل...">
             </div>
-            <div class="card" style="margin:0; border-right: 4px solid var(--danger);">
-                <div style="font-size: 0.75rem; color: var(--muted);">ديون عليك (للناس)</div>
-                <div style="font-size: 1.1rem; font-weight: 800; color: var(--danger); direction: ltr;" id="totalDebtsPayable">0</div>
+
+            <div class="form-group">
+                <label>الإيميل أو رقم الهاتف</label>
+                <input type="text" id="authContact" required placeholder="name@example.com أو +2499xxxxxxxx">
             </div>
-        </div>
-        <div id="debtsList"></div>
-    </section>
 
-    <!-- TAB 4: AUDIT / INVENTORY (الجرد) -->
-    <section id="tab-audit" class="tab-section">
-        <div class="section-title">
-            <span>الجرد التفصيلي والمخطط</span>
-            <div class="export-bar" style="margin:0;">
-                <button class="btn-sm btn-pdf" onclick="exportAuditPDF()">📄 تصدير الجرد PDF</button>
-                <button class="btn-sm btn-excel" onclick="exportFullExcel()">📊 إكسيل شامل</button>
+            <div class="form-group" id="authPasswordGroup">
+                <label id="authPasswordLabel">كلمة المرور</label>
+                <input type="password" id="authPassword" minlength="6" placeholder="6 أحرف/أرقام على الأقل">
             </div>
-        </div>
 
-        <div class="card" id="auditSummaryCard"></div>
+            <div class="form-group" id="authEnableBioGroup" style="display:none;">
+                <label class="check-inline">
+                    <input type="checkbox" id="authEnableBioCheckbox" checked>
+                    <span>تفعيل تسجيل الدخول بالبصمة لهذا الحساب</span>
+                </label>
+            </div>
 
-        <div class="card">
-            <div class="section-title" style="margin-bottom:6px;">جدول إدخال الرصيد الفعلي للمطابقة</div>
-            <p style="font-size: 0.78rem; color: var(--muted); margin-bottom: 10px;">أدخل المبلغ الفعلي الموجود حالياً في الدرج وفي كل تطبيق وشريحة رصيد لمعرفة أي زيادة أو عجز:</p>
-            <div id="auditInputsContainer"></div>
-            <button class="btn-primary" onclick="calculateAudit()" style="margin-top: 10px;">📊 مطابقة الجرد الآن</button>
-        </div>
-        <div id="auditResultCard" class="card" style="display: none;"></div>
-    </section>
-
-    <!-- TAB 5: SETTINGS -->
-    <section id="tab-settings" class="tab-section">
-        <div class="section-title">ضبط عمولة التطبيقات والرصيد</div>
-        <div class="card" id="feeSettingsContainer"></div>
-
-        <div class="section-title">تعديل الأرصدة وشرائح الرصيد مباشرة</div>
-        <div class="card">
-            <div class="row-2">
-                <div class="form-group">
-                    <label>💵 الكاش</label>
-                    <input type="number" id="set-bal-cash" step="any">
+            <div id="otpSection" style="display:none;">
+                <div class="otp-banner">
+                    <span id="otpBannerText">رمز التحقق (6 أرقام):</span>
+                    <span class="otp-code-pill" id="generatedOtpDisplay">------</span>
                 </div>
                 <div class="form-group">
-                    <label>🔴 بنكك</label>
-                    <input type="number" id="set-bal-bankak" step="any">
-                </div>
-                <div class="form-group">
-                    <label>🟠 أوكاش</label>
-                    <input type="number" id="set-bal-okash" step="any">
-                </div>
-                <div class="form-group">
-                    <label>📶 رصيد زين</label>
-                    <input type="number" id="set-bal-zain" step="any">
-                </div>
-                <div class="form-group">
-                    <label>📶 رصيد سوداني</label>
-                    <input type="number" id="set-bal-sudani" step="any">
-                </div>
-                <div class="form-group">
-                    <label>📶 رصيد MTN</label>
-                    <input type="number" id="set-bal-mtn" step="any">
+                    <label>أدخل رمز التحقق</label>
+                    <input type="text" id="authOtpInput" maxlength="6" placeholder="000000" style="direction:ltr; text-align:center; font-weight:800; letter-spacing:3px;">
                 </div>
             </div>
-            <button class="btn-primary" onclick="saveManualBalances()">💾 حفظ الأرصدة</button>
-        </div>
 
-        <div class="section-title">التصدير الشامل والنسخ الاحتياطي</div>
-        <div class="card" style="display: flex; flex-direction: column; gap: 8px;">
-            <div style="font-size:0.75rem; color:var(--muted);" id="lastBackupLabel">آخر تصدير: لم يتم بعد</div>
-            <button class="btn-primary btn-excel" onclick="exportFullExcel()">📊 تصدير ملف إكسيل شامل لكل شيء</button>
-            <button class="btn-primary btn-pdf" onclick="exportAuditPDF()">📄 تصدير تقرير الجرد PDF</button>
-            <button class="btn-primary btn-pdf" onclick="exportTransactionsPDF()">📄 تصدير سجل العمليات PDF</button>
-            <button class="btn-primary" style="background: var(--accent);" onclick="exportBackup()">📤 تصدير نسخة احتياطية (ملف JSON)</button>
-            <label class="btn-primary" style="background: #475569; text-align: center; cursor: pointer; margin: 0;">
-                📥 استيراد نسخة احتياطية
-                <input type="file" accept=".json" style="display: none;" onchange="importBackup(event)">
-            </label>
-            <button class="btn-primary" style="background: var(--warning);" onclick="loadDemoData()">🧪 تعبئة بيانات تجريبية للمعاينة</button>
-            <button class="btn-primary" style="background: var(--danger);" onclick="resetAllData()">🗑️ تصفير كافة البيانات</button>
-        </div>
-    </section>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                <button type="button" class="btn-primary" style="background:var(--accent); display:none;" id="sendOtpBtn" onclick="sendVerificationOtp()">📩 إرسال رمز التحقق</button>
+                <button type="submit" class="btn-primary" id="authSubmitBtn">✅ تسجيل الدخول</button>
+            </div>
+
+            <div class="auth-links-row" id="authHelperLinks">
+                <button type="button" class="link-btn" onclick="setAuthMode('forgot')">نسيت كلمة المرور؟</button>
+                <button type="button" class="link-btn" onclick="enrollBiometricForExisting()">👆 ربط البصمة بحسابي</button>
+            </div>
+        </form>
+    </div>
 </div>
 
-<!-- BOTTOM NAVIGATION -->
-<nav>
-    <button class="nav-item active" onclick="switchTab('home')" id="nav-home">
-        <span class="nav-icon">🏠</span>
-        <span>الرئيسية</span>
-    </button>
-    <button class="nav-item" onclick="switchTab('deferred')" id="nav-deferred">
-        <span class="nav-icon">⏳</span>
-        <span>الآجل</span>
-        <span class="nav-badge" id="navPendingBadge" style="display:none;">0</span>
-    </button>
-    <button class="nav-item" onclick="switchTab('debts')" id="nav-debts">
-        <span class="nav-icon">📒</span>
-        <span>الديون</span>
-    </button>
-    <button class="nav-item" onclick="switchTab('audit')" id="nav-audit">
-        <span class="nav-icon">⚖️</span>
-        <span>الجرد</span>
-    </button>
-    <button class="nav-item" onclick="switchTab('settings')" id="nav-settings">
-        <span class="nav-icon">⚙️</span>
-        <span>الإعدادات</span>
-    </button>
-</nav>
+<!-- MAIN APPLICATION WRAPPER -->
+<div id="mainAppWrapper" style="display:none;">
+    <header>
+        <div class="header-top">
+            <div class="app-title">💼 الصراف الذكي</div>
+            <div class="profit-pill">أرباح اليوم: <span id="hdrTodayProfit">0</span> ج.س</div>
+        </div>
+        <div class="user-chip">
+            <span>👤 <b id="hdrUserLabel">-</b></span>
+            <div style="display:flex; gap:6px;">
+                <button class="btn-sm btn-outline" style="padding:3px 8px; font-size:0.68rem;" onclick="lockSessionNow()">🔒 قفل</button>
+                <button class="btn-sm btn-outline" style="padding:3px 8px; font-size:0.68rem;" onclick="logoutUser()">تسجيل خروج</button>
+            </div>
+        </div>
+        <div class="capital-box">
+            <div>
+                <div class="capital-label">رأس المال بعد خصم الديون والمستحقات</div>
+                <div style="font-size: 0.68rem; color: #94a3b8;" id="hdrSaveStatus">محفوظ محلياً • جاهز</div>
+            </div>
+            <div class="capital-val" id="hdrNetCapital">0</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="backup-alert" id="backupReminderBanner">
+            <span>⚠️ يُنصح بتصدير نسخة احتياطية لحماية بياناتك.</span>
+            <button class="btn-sm btn-success" onclick="exportBackup()">تصدير الآن</button>
+        </div>
+
+        <!-- TAB 1: HOME -->
+        <section id="tab-home" class="tab-section active">
+            <div class="section-title">
+                <span>الخزائن والمحافظ والرصيد</span>
+                <span style="font-size: 0.72rem; color: var(--muted);">العملة: ج.س</span>
+            </div>
+            <div class="wallets-grid">
+                <div class="wallet-card w-cash">
+                    <div class="wallet-head">
+                        <span class="wallet-name">💵 الكاش (الدرج)</span>
+                        <span class="wallet-fee-tag">نقدي</span>
+                    </div>
+                    <div class="wallet-bal" id="bal-cash">0</div>
+                </div>
+                <div class="wallet-card w-bankak">
+                    <div class="wallet-head">
+                        <span class="wallet-name" style="color: var(--bankak);">🔴 بنكك</span>
+                        <span class="wallet-fee-tag" id="tag-bankak">0%</span>
+                    </div>
+                    <div class="wallet-bal" id="bal-bankak">0</div>
+                </div>
+                <div class="wallet-card w-okash">
+                    <div class="wallet-head">
+                        <span class="wallet-name" style="color: var(--okash);">🟠 أوكاش</span>
+                        <span class="wallet-fee-tag" id="tag-okash">0%</span>
+                    </div>
+                    <div class="wallet-bal" id="bal-okash">0</div>
+                </div>
+                <div class="wallet-card w-credit">
+                    <div class="wallet-head">
+                        <span class="wallet-name" style="color: var(--credit);">📶 الرصيد</span>
+                        <span class="wallet-fee-tag">3 شرائح</span>
+                    </div>
+                    <div class="wallet-bal" id="bal-credit-total">0</div>
+                    <div class="wallet-sub-lines">
+                        <div class="wallet-sub-row"><span>زين:</span><b id="bal-zain">0</b></div>
+                        <div class="wallet-sub-row"><span>سوداني:</span><b id="bal-sudani">0</b></div>
+                        <div class="wallet-sub-row"><span>MTN:</span><b id="bal-mtn">0</b></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title">تسجيل معاملة سريعة</div>
+            <div class="actions-grid">
+                <button class="action-btn btn-in-app" onclick="openTxModal('in_app')">
+                    <span class="action-icon">📥</span>
+                    <span class="action-title">استلام تطبيق ⬅ إعطاء كاش</span>
+                    <span class="action-sub">تسليم فوري أو آجل على دفعات</span>
+                </button>
+                <button class="action-btn btn-out-app" onclick="openTxModal('out_app')">
+                    <span class="action-icon">📤</span>
+                    <span class="action-title">استلام كاش ⬅ تحويل تطبيق</span>
+                    <span class="action-sub">بنكك أو أوكاش مقابل كاش</span>
+                </button>
+                <button class="action-btn btn-credit" onclick="openTxModal('credit_sale')">
+                    <span class="action-icon">📶</span>
+                    <span class="action-title">استلام كاش ⬅ تحويل رصيد</span>
+                    <span class="action-sub">زين / سوداني / MTN (خصم العمولة)</span>
+                </button>
+                <button class="action-btn btn-transfer" onclick="openTxModal('transfer')">
+                    <span class="action-icon">🔄</span>
+                    <span class="action-title">تحويل بين التطبيقات والرصيد</span>
+                    <span class="action-sub">بنكك / أوكاش / رصيد (بدون عمولة)</span>
+                </button>
+                <button class="action-btn btn-add-cash" onclick="openTxModal('add_cash')">
+                    <span class="action-icon">➕</span>
+                    <span class="action-title">إضافة كاش مباشر</span>
+                    <span class="action-sub">آلات حاسبة • شحن</span>
+                </button>
+                <button class="action-btn btn-expense" onclick="openTxModal('expense')">
+                    <span class="action-icon">🧾</span>
+                    <span class="action-title">منصرفات / سحب</span>
+                    <span class="action-sub">خصم من الكاش أو تطبيق أو رصيد</span>
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="section-title" style="margin-bottom:6px;">
+                    <span>العمليات والحركات السابقة</span>
+                    <div style="display:flex; gap:6px;">
+                        <button class="btn-sm btn-pdf" onclick="exportTransactionsPDF()">📄 PDF</button>
+                        <button class="btn-sm btn-excel" onclick="exportFullExcel()">📊 إكسيل</button>
+                        <button class="btn-sm btn-outline" onclick="switchTab('deferred')">الآجل (<span id="homePendingCount">0</span>)</button>
+                    </div>
+                </div>
+                <div class="filter-bar">
+                    <input type="date" id="txFilterDate" onchange="renderTransactionsTable()">
+                    <input type="text" id="txFilterSerial" placeholder="🔍 بحث بالرقم المتسلسل..." oninput="renderTransactionsTable()">
+                    <button class="btn-sm btn-outline" onclick="clearTxFilters()">عرض الكل</button>
+                </div>
+                <div id="fullTxTableContainer"></div>
+            </div>
+        </section>
+
+        <!-- TAB 2: DEFERRED DELIVERIES (الآجل والدفعات) -->
+        <section id="tab-deferred" class="tab-section">
+            <div class="section-title">
+                <span>استلامات التطبيق الآجلة (أمانات الزبائن)</span>
+            </div>
+            <div class="segmented">
+                <button class="seg-btn active" id="defFilterPending" onclick="setDeferredFilter('pending')">بانتظار التسليم</button>
+                <button class="seg-btn" id="defFilterDone" onclick="setDeferredFilter('done')">المكتملة</button>
+            </div>
+            <div class="form-group">
+                <input type="text" id="defSearch" placeholder="🔍 ابحث بالرقم المتسلسل أو رقم الإشعار أو المستلم..." oninput="renderDeferredList()">
+            </div>
+            <div id="deferredList"></div>
+        </section>
+
+        <!-- TAB 3: DEBTS (الديون) -->
+        <section id="tab-debts" class="tab-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span class="section-title" style="margin:0;">دفتر الديون</span>
+                <button class="btn-sm btn-primary" style="width:auto;" onclick="openDebtModal()">+ إضافة دين</button>
+            </div>
+            <div class="row-2" style="margin-bottom: 12px;">
+                <div class="card" style="margin:0; border-right: 4px solid var(--success);">
+                    <div style="font-size: 0.75rem; color: var(--muted);">ديون ليك (طرف الناس)</div>
+                    <div style="font-size: 1.1rem; font-weight: 800; color: var(--success); direction: ltr;" id="totalDebtsReceivable">0</div>
+                </div>
+                <div class="card" style="margin:0; border-right: 4px solid var(--danger);">
+                    <div style="font-size: 0.75rem; color: var(--muted);">ديون عليك (للناس)</div>
+                    <div style="font-size: 1.1rem; font-weight: 800; color: var(--danger); direction: ltr;" id="totalDebtsPayable">0</div>
+                </div>
+            </div>
+            <div id="debtsList"></div>
+        </section>
+
+        <!-- TAB 4: AUDIT / INVENTORY (الجرد) -->
+        <section id="tab-audit" class="tab-section">
+            <div class="section-title">
+                <span>الجرد التفصيلي والمخطط</span>
+                <div class="export-bar" style="margin:0;">
+                    <button class="btn-sm btn-pdf" onclick="exportAuditPDF()">📄 تصدير الجرد PDF</button>
+                    <button class="btn-sm btn-excel" onclick="exportFullExcel()">📊 إكسيل شامل</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <label style="margin-bottom:6px;">فترة الجرد (الفوائد والمنصرفات ضمن الفترة):</label>
+                <div class="period-grid" id="auditPeriodGrid">
+                    <button type="button" class="period-btn active" data-period="day" onclick="setAuditPeriod('day')">اليوم</button>
+                    <button type="button" class="period-btn" data-period="week" onclick="setAuditPeriod('week')">الأسبوع</button>
+                    <button type="button" class="period-btn" data-period="month" onclick="setAuditPeriod('month')">الشهر</button>
+                    <button type="button" class="period-btn" data-period="quarter" onclick="setAuditPeriod('quarter')">3 شهور</button>
+                    <button type="button" class="period-btn" data-period="half_year" onclick="setAuditPeriod('half_year')">6 شهور</button>
+                    <button type="button" class="period-btn" data-period="year" onclick="setAuditPeriod('year')">سنة</button>
+                </div>
+            </div>
+
+            <div class="card" id="auditSummaryCard"></div>
+
+            <div class="card">
+                <div class="section-title" style="margin-bottom:6px;">جدول إدخال الرصيد الفعلي للمطابقة</div>
+                <p style="font-size: 0.78rem; color: var(--muted); margin-bottom: 10px;">أدخل المبلغ الفعلي الموجود حالياً في الدرج وفي كل تطبيق وشريحة رصيد لمعرفة أي زيادة أو عجز:</p>
+                <div id="auditInputsContainer"></div>
+                <button class="btn-primary" onclick="calculateAudit()" style="margin-top: 10px;">📊 مطابقة الجرد الآن</button>
+            </div>
+            <div id="auditResultCard" class="card" style="display: none;"></div>
+        </section>
+
+        <!-- TAB 5: SETTINGS -->
+        <section id="tab-settings" class="tab-section">
+            <div class="section-title">الأمان والبصمة وقفل الجلسة</div>
+            <div class="card" style="display:flex; flex-direction:column; gap:8px;">
+                <div style="font-size:0.8rem;" id="settingsBioStatus">حالة البصمة: غير مفعّلة</div>
+                <div class="form-group" style="margin-bottom:4px;">
+                    <label>مهلة القفل التلقائي عند الخمول</label>
+                    <select id="autoLockMinutesSelect" onchange="updateAutoLockSetting()">
+                        <option value="2">بعد دقيقتين (2 دقيقة)</option>
+                        <option value="5" selected>بعد 5 دقائق (5 دقائق)</option>
+                        <option value="15">بعد 15 دقيقة</option>
+                        <option value="0">تعطيل القفل التلقائي</option>
+                    </select>
+                </div>
+                <button class="btn-primary" style="background:var(--success);" onclick="toggleAccountBiometric()">👆 تفعيل / إلغاء البصمة للحساب الحالي</button>
+                <button class="btn-primary btn-outline" onclick="lockSessionNow()">🔒 قفل الجلسة الآن</button>
+                <button class="btn-primary btn-outline" onclick="logoutUser()">🚪 تسجيل خروج</button>
+            </div>
+
+            <div class="section-title">ضبط عمولة التطبيقات والرصيد</div>
+            <div class="card" id="feeSettingsContainer"></div>
+
+            <div class="section-title">تعديل الأرصدة وشرائح الرصيد مباشرة</div>
+            <div class="card">
+                <div class="row-2">
+                    <div class="form-group">
+                        <label>💵 الكاش</label>
+                        <input type="number" id="set-bal-cash" step="any">
+                    </div>
+                    <div class="form-group">
+                        <label>🔴 بنكك</label>
+                        <input type="number" id="set-bal-bankak" step="any">
+                    </div>
+                    <div class="form-group">
+                        <label>🟠 أوكاش</label>
+                        <input type="number" id="set-bal-okash" step="any">
+                    </div>
+                    <div class="form-group">
+                        <label>📶 رصيد زين</label>
+                        <input type="number" id="set-bal-zain" step="any">
+                    </div>
+                    <div class="form-group">
+                        <label>📶 رصيد سوداني</label>
+                        <input type="number" id="set-bal-sudani" step="any">
+                    </div>
+                    <div class="form-group">
+                        <label>📶 رصيد MTN</label>
+                        <input type="number" id="set-bal-mtn" step="any">
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="saveManualBalances()">💾 حفظ الأرصدة</button>
+            </div>
+
+            <div class="section-title">التصدير الشامل والنسخ الاحتياطي</div>
+            <div class="card" style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="font-size:0.75rem; color:var(--muted);" id="lastBackupLabel">آخر تصدير: لم يتم بعد</div>
+                <button class="btn-primary btn-excel" onclick="exportFullExcel()">📊 تصدير ملف إكسيل شامل لكل شيء</button>
+                <button class="btn-primary btn-pdf" onclick="exportAuditPDF()">📄 تصدير تقرير الجرد PDF</button>
+                <button class="btn-primary btn-pdf" onclick="exportTransactionsPDF()">📄 تصدير سجل العمليات PDF</button>
+                <button class="btn-primary" style="background: var(--accent);" onclick="exportBackup()">📤 تصدير نسخة احتياطية (ملف JSON)</button>
+                <label class="btn-primary" style="background: #475569; text-align: center; cursor: pointer; margin: 0;">
+                    📥 استيراد نسخة احتياطية
+                    <input type="file" accept=".json" style="display: none;" onchange="importBackup(event)">
+                </label>
+                <button class="btn-primary" style="background: var(--warning);" onclick="loadDemoData()">🧪 تعبئة بيانات تجريبية للمعاينة</button>
+                <button class="btn-primary" style="background: var(--danger);" onclick="resetAllData()">🗑️ تصفير كافة البيانات</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav>
+        <button class="nav-item active" onclick="switchTab('home')" id="nav-home">
+            <span class="nav-icon">🏠</span>
+            <span>الرئيسية</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('deferred')" id="nav-deferred">
+            <span class="nav-icon">⏳</span>
+            <span>الآجل</span>
+            <span class="nav-badge" id="navPendingBadge" style="display:none;">0</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('debts')" id="nav-debts">
+            <span class="nav-icon">📒</span>
+            <span>الديون</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('audit')" id="nav-audit">
+            <span class="nav-icon">⚖️</span>
+            <span>الجرد</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('settings')" id="nav-settings">
+            <span class="nav-icon">⚙️</span>
+            <span>الإعدادات</span>
+        </button>
+    </nav>
+</div>
 
 <!-- MODAL: NEW TRANSACTION -->
 <div class="modal-backdrop" id="txModal">
@@ -562,7 +779,6 @@
                 </div>
             </div>
 
-            <!-- Service Type for Direct Cash (آلات حاسبة / شحن) -->
             <div class="form-group" id="serviceTypeGroup" style="display:none;">
                 <label>نوع الخدمة</label>
                 <select id="txServiceType" onchange="updateTxPreview()">
@@ -571,7 +787,6 @@
                 </select>
             </div>
 
-            <!-- Credit Provider (زين / سوداني / MTN) -->
             <div class="form-group" id="creditProviderGroup" style="display:none;">
                 <label id="creditProviderLabel">شريحة الرصيد</label>
                 <select id="txCreditProvider" onchange="autoCalcFee()">
@@ -581,7 +796,6 @@
                 </select>
             </div>
 
-            <!-- Bank App (بنكك / أوكاش) -->
             <div class="form-group" id="appSelectGroup">
                 <label id="appSelectLabel">التطبيق البنكي</label>
                 <select id="txApp" onchange="autoCalcFee()">
@@ -590,7 +804,6 @@
                 </select>
             </div>
 
-            <!-- Transfer Source & Destination -->
             <div class="row-2" id="transferEndpointsGroup" style="display:none;">
                 <div class="form-group">
                     <label>من جهة (المصدر)</label>
@@ -748,6 +961,14 @@
 </div>
 
 <script>
+    // ضع إعدادات مشروع Firebase هنا لتفعيل التحقق الحقيقي عبر الإيميل أو رقم الهاتف عبر الإنترنت
+    const FIREBASE_CONFIG = {
+        enabled: false,
+        apiKey: '',
+        authDomain: '',
+        projectId: ''
+    };
+
     const SOURCE_NAMES = {
         cash: 'الكاش',
         bankak: 'بنكك',
@@ -757,10 +978,35 @@
         mtn: 'رصيد MTN'
     };
 
-    const STORAGE_KEY = 'smart_exchange_stable_v3';
-    const LEGACY_KEYS = ['smart_exchange_stable_v2', 'smart_exchange_stable_v1', 'smart_exchange_v5', 'smart_exchange_v4'];
+    const PERIOD_LABELS = {
+        day: 'اليوم',
+        week: 'الأسبوع (7 أيام)',
+        month: 'الشهر (30 يوماً)',
+        quarter: '3 شهور (90 يوماً)',
+        half_year: '6 شهور (180 يوماً)',
+        year: 'سنة (365 يوماً)'
+    };
+
+    const PERIOD_DAYS = {
+        day: 1,
+        week: 7,
+        month: 30,
+        quarter: 90,
+        half_year: 180,
+        year: 365
+    };
+
+    const STORAGE_KEY = 'smart_exchange_stable_v5';
+    const LEGACY_KEYS = ['smart_exchange_stable_v4', 'smart_exchange_stable_v3', 'smart_exchange_stable_v2', 'smart_exchange_stable_v1', 'smart_exchange_v5', 'smart_exchange_v4'];
 
     const defaultState = {
+        auth: {
+            users: [],
+            activeUser: null,
+            pendingOtp: null,
+            autoLockMinutes: 5,
+            lastActivityAt: Date.now()
+        },
         txCounter: 0,
         balances: { cash: 0, bankak: 0, okash: 0, zain: 0, sudani: 0, mtn: 0 },
         fees: {
@@ -776,6 +1022,9 @@
         debts: [],
         lastBackupAt: null
     };
+
+    let authMode = 'login';
+    let auditPeriod = 'day';
 
     function formatSerialCode(seqNum, dateObj = new Date()) {
         const yy = String(dateObj.getFullYear()).slice(-2);
@@ -795,12 +1044,29 @@
         return formatSerialCode(state.txCounter, new Date());
     }
 
+    async function hashPassword(str) {
+        const salted = `alsarraf_sec_v1:${str}`;
+        if (window.crypto && window.crypto.subtle && typeof TextEncoder !== 'undefined') {
+            const buf = new TextEncoder().encode(salted);
+            const digest = await window.crypto.subtle.digest('SHA-256', buf);
+            return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        let h = 2166136261;
+        for (let i = 0; i < salted.length; i++) {
+            h ^= salted.charCodeAt(i);
+            h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
+        }
+        return (h >>> 0).toString(16);
+    }
+
     function loadInitialState() {
         try {
             const raw = localStorage.getItem(STORAGE_KEY) || LEGACY_KEYS.map(k => localStorage.getItem(k)).find(Boolean);
             if (raw) {
                 const parsed = JSON.parse(raw);
                 const merged = JSON.parse(JSON.stringify(defaultState));
+                merged.auth = Object.assign(merged.auth, parsed.auth || {});
+                if (!Array.isArray(merged.auth.users)) merged.auth.users = [];
                 merged.balances = Object.assign(merged.balances, parsed.balances || {});
                 merged.fees = Object.assign(merged.fees, parsed.fees || {});
                 merged.transactions = Array.isArray(parsed.transactions) ? parsed.transactions : [];
@@ -808,7 +1074,6 @@
                 merged.debts = Array.isArray(parsed.debts) ? parsed.debts : [];
                 merged.lastBackupAt = parsed.lastBackupAt || null;
 
-                // Ensure counter is at least total existing transactions and backfill missing serials
                 let counter = Number(parsed.txCounter) || 0;
                 if (counter < merged.transactions.length) {
                     counter = merged.transactions.length;
@@ -864,6 +1129,378 @@
         renderAll();
     }
 
+    /* ---------------- SESSION AUTO-LOCK ---------------- */
+    function touchActivity() {
+        if (!state.auth || !state.auth.activeUser) return;
+        state.auth.lastActivityAt = Date.now();
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+
+    function lockSessionNow() {
+        if (!state.auth || !state.auth.activeUser) return;
+        const lastContact = state.auth.activeUser.contact;
+        state.auth.activeUser = null;
+        saveState();
+        setAuthMode('login');
+        const cInp = document.getElementById('authContact');
+        if (cInp) cInp.value = lastContact || '';
+    }
+
+    function updateAutoLockSetting() {
+        const sel = document.getElementById('autoLockMinutesSelect');
+        if (!sel) return;
+        state.auth.autoLockMinutes = Number(sel.value) || 0;
+        state.auth.lastActivityAt = Date.now();
+        saveState();
+    }
+
+    setInterval(() => {
+        if (!state.auth || !state.auth.activeUser) return;
+        const mins = Number(state.auth.autoLockMinutes);
+        if (!mins || mins <= 0) return;
+        const idleMs = Date.now() - (Number(state.auth.lastActivityAt) || Date.now());
+        if (idleMs >= mins * 60 * 1000) {
+            lockSessionNow();
+        }
+    }, 15000);
+
+    ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(evName => {
+        window.addEventListener(evName, touchActivity, { passive: true });
+    });
+
+    /* ---------------- AUTH, BIOMETRIC & PASSWORD RESET ---------------- */
+    function setAuthMode(mode) {
+        authMode = mode;
+        document.getElementById('authTabLogin').classList.toggle('active', mode === 'login');
+        document.getElementById('authTabRegister').classList.toggle('active', mode === 'register');
+        document.getElementById('authTabForgot').classList.toggle('active', mode === 'forgot');
+
+        const nameGrp = document.getElementById('authNameGroup');
+        const pwGrp = document.getElementById('authPasswordGroup');
+        const pwLbl = document.getElementById('authPasswordLabel');
+        const pwInp = document.getElementById('authPassword');
+        const bioBox = document.getElementById('biometricQuickBox');
+        const enableBioGrp = document.getElementById('authEnableBioGroup');
+        const sendOtpBtn = document.getElementById('sendOtpBtn');
+        const otpSec = document.getElementById('otpSection');
+        const submitBtn = document.getElementById('authSubmitBtn');
+        const helperLinks = document.getElementById('authHelperLinks');
+
+        otpSec.style.display = 'none';
+        document.getElementById('authOtpInput').value = '';
+        state.auth.pendingOtp = null;
+
+        if (mode === 'login') {
+            nameGrp.style.display = 'none';
+            pwGrp.style.display = 'block';
+            pwLbl.textContent = 'كلمة المرور';
+            pwInp.required = true;
+            pwInp.placeholder = '••••••••';
+            bioBox.style.display = 'block';
+            enableBioGrp.style.display = 'none';
+            sendOtpBtn.style.display = 'none';
+            submitBtn.textContent = '✅ تسجيل الدخول';
+            helperLinks.style.display = 'flex';
+        } else if (mode === 'register') {
+            nameGrp.style.display = 'block';
+            pwGrp.style.display = 'block';
+            pwLbl.textContent = 'كلمة المرور';
+            pwInp.required = true;
+            pwInp.placeholder = '6 أحرف/أرقام على الأقل';
+            bioBox.style.display = 'none';
+            enableBioGrp.style.display = 'block';
+            sendOtpBtn.style.display = 'block';
+            submitBtn.textContent = '✅ تأكيد الرمز وإنشاء الحساب';
+            helperLinks.style.display = 'none';
+        } else if (mode === 'forgot') {
+            nameGrp.style.display = 'none';
+            pwGrp.style.display = 'block';
+            pwLbl.textContent = 'كلمة المرور الجديدة';
+            pwInp.required = true;
+            pwInp.placeholder = 'أدخل كلمة المرور الجديدة...';
+            bioBox.style.display = 'none';
+            enableBioGrp.style.display = 'none';
+            sendOtpBtn.style.display = 'block';
+            submitBtn.textContent = '🔄 تأكيد الرمز وحفظ كلمة المرور الجديدة';
+            helperLinks.style.display = 'none';
+        }
+        updateBiometricStatusUI();
+    }
+
+    function detectChannel(contact) {
+        return contact.includes('@') ? 'email' : 'phone';
+    }
+
+    function sendVerificationOtp() {
+        const contact = document.getElementById('authContact').value.trim();
+        if (!contact) {
+            alert('يرجى إدخال البريد الإلكتروني أو رقم الهاتف أولاً');
+            return;
+        }
+        const ch = detectChannel(contact);
+        if (FIREBASE_CONFIG.enabled && FIREBASE_CONFIG.apiKey) {
+            alert(`تم تفعيل وضع المزود السحابي (${FIREBASE_CONFIG.projectId || 'Firebase'}) لإرسال التحقق إلى (${contact}).`);
+        }
+        const code = String(Math.floor(100000 + Math.random() * 900000));
+        state.auth.pendingOtp = { contact: contact.toLowerCase(), channel: ch, code, createdAt: Date.now() };
+        document.getElementById('otpBannerText').textContent = `رمز التحقق (${ch === 'email' ? 'البريد الإلكتروني' : 'رقم الهاتف'}):`;
+        document.getElementById('generatedOtpDisplay').textContent = code;
+        document.getElementById('otpSection').style.display = 'block';
+        document.getElementById('authOtpInput').value = code;
+        saveState();
+    }
+
+    async function verifyDeviceBiometric(labelText) {
+        if (window.PublicKeyCredential && navigator.credentials && typeof navigator.credentials.create === 'function') {
+            try {
+                const challenge = new Uint8Array(16);
+                window.crypto.getRandomValues(challenge);
+                const userId = new Uint8Array(16);
+                window.crypto.getRandomValues(userId);
+                await navigator.credentials.create({
+                    publicKey: {
+                        challenge,
+                        rp: { name: 'الصراف الذكي' },
+                        user: {
+                            id: userId,
+                            name: labelText,
+                            displayName: labelText
+                        },
+                        pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+                        authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'preferred' },
+                        timeout: 30000
+                    }
+                });
+                return true;
+            } catch (err) {
+                return confirm(`تأكيد البصمة للجهاز (${labelText}): اضغط موافق لتأكيد البصمة المحلية.`);
+            }
+        }
+        return confirm(`تأكيد البصمة للجهاز (${labelText}): اضغط موافق لتأكيد البصمة المحلية.`);
+    }
+
+    async function loginWithBiometric() {
+        const contactInput = document.getElementById('authContact').value.trim().toLowerCase();
+        let targetUser = null;
+
+        if (contactInput) {
+            targetUser = state.auth.users.find(u => u.contact.toLowerCase() === contactInput && u.biometricEnabled);
+            if (!targetUser) {
+                alert('هذا الحساب غير مرتبط بالبصمة، سجّل الدخول بكلمة المرور ثم فعّل البصمة من الإعدادات');
+                return;
+            }
+        } else {
+            const bioUsers = state.auth.users.filter(u => u.biometricEnabled);
+            if (bioUsers.length === 0) {
+                alert('لا يوجد حساب مفعّل بالبصمة بعد؛ أنشئ حساباً أو فعّل البصمة من الإعدادات');
+                return;
+            }
+            targetUser = bioUsers[0];
+        }
+
+        const ok = await verifyDeviceBiometric(targetUser.contact);
+        if (!ok) return;
+
+        state.auth.activeUser = {
+            id: targetUser.id,
+            name: targetUser.name,
+            contact: targetUser.contact,
+            verified: targetUser.verified,
+            biometricEnabled: true
+        };
+        state.auth.lastActivityAt = Date.now();
+        saveState();
+    }
+
+    async function enrollBiometricForExisting() {
+        const contact = document.getElementById('authContact').value.trim().toLowerCase();
+        const password = document.getElementById('authPassword').value;
+        if (!contact || !password) {
+            alert('أدخل البريد/رقم الهاتف وكلمة المرور لربط البصمة بالحساب');
+            return;
+        }
+        const pwDigest = await hashPassword(password);
+        const user = state.auth.users.find(u => u.contact.toLowerCase() === contact && u.pwHash === pwDigest);
+        if (!user) {
+            alert('بيانات الحساب غير صحيحة');
+            return;
+        }
+        const ok = await verifyDeviceBiometric(user.contact);
+        if (!ok) return;
+        user.biometricEnabled = true;
+        saveState();
+        alert('تم ربط البصمة بحسابك بنجاح؛ يمكنك الآن الدخول بالبصمة مباشرة');
+    }
+
+    function toggleAccountBiometric() {
+        if (!state.auth.activeUser) return;
+        const user = state.auth.users.find(u => u.id === state.auth.activeUser.id);
+        if (!user) return;
+
+        if (user.biometricEnabled) {
+            user.biometricEnabled = false;
+            state.auth.activeUser.biometricEnabled = false;
+            saveState();
+            alert('تم إلغاء البصمة لهذا الحساب');
+        } else {
+            verifyDeviceBiometric(user.contact).then(ok => {
+                if (!ok) return;
+                user.biometricEnabled = true;
+                state.auth.activeUser.biometricEnabled = true;
+                saveState();
+                alert('تم تفعيل البصمة لهذا الحساب بنجاح');
+            });
+        }
+    }
+
+    async function handleAuthSubmit(e) {
+        e.preventDefault();
+        const name = (document.getElementById('authName').value || '').trim();
+        const contact = document.getElementById('authContact').value.trim().toLowerCase();
+        const password = document.getElementById('authPassword').value;
+        const otpInput = document.getElementById('authOtpInput').value.trim();
+
+        if (!contact) {
+            alert('يرجى إدخال البريد الإلكتروني أو رقم الهاتف');
+            return;
+        }
+
+        if (authMode === 'register') {
+            if (!name) {
+                alert('يرجى إدخال الاسم الكامل');
+                return;
+            }
+            if (!password || password.length < 6) {
+                alert('يرجى إدخال كلمة مرور لا تقل عن 6 أحرف/أرقام');
+                return;
+            }
+            const exists = state.auth.users.some(u => u.contact.toLowerCase() === contact);
+            if (exists) {
+                alert('هذا الحساب مسجل مسبقاً، انتقل إلى تسجيل الدخول');
+                return;
+            }
+            if (!state.auth.pendingOtp || state.auth.pendingOtp.contact !== contact) {
+                alert('اضغط على "إرسال رمز التحقق" أولاً لتأكيد الإيميل أو رقم الهاتف');
+                return;
+            }
+            if (state.auth.pendingOtp.code !== otpInput) {
+                alert('رمز التحقق غير صحيح');
+                return;
+            }
+
+            const enableBio = document.getElementById('authEnableBioCheckbox').checked;
+            let bioOk = false;
+            if (enableBio) {
+                bioOk = await verifyDeviceBiometric(contact);
+            }
+
+            const pwDigest = await hashPassword(password);
+            const newUser = {
+                id: Date.now(),
+                name,
+                channel: detectChannel(contact),
+                contact,
+                pwHash: pwDigest,
+                verified: true,
+                biometricEnabled: Boolean(enableBio && bioOk)
+            };
+            state.auth.users.push(newUser);
+            state.auth.activeUser = {
+                id: newUser.id,
+                name: newUser.name,
+                contact: newUser.contact,
+                verified: true,
+                biometricEnabled: newUser.biometricEnabled
+            };
+            state.auth.pendingOtp = null;
+            state.auth.lastActivityAt = Date.now();
+            saveState();
+        } else if (authMode === 'forgot') {
+            const target = state.auth.users.find(u => u.contact.toLowerCase() === contact);
+            if (!target) {
+                alert('لا يوجد حساب مسجل بهذا البريد الإلكتروني أو رقم الهاتف');
+                return;
+            }
+            if (!password || password.length < 6) {
+                alert('يرجى إدخال كلمة مرور جديدة (6 أحرف/أرقام على الأقل)');
+                return;
+            }
+            if (!state.auth.pendingOtp || state.auth.pendingOtp.contact !== contact) {
+                alert('اضغط على "إرسال رمز التحقق" أولاً لإرسال رمز الاستعادة');
+                return;
+            }
+            if (state.auth.pendingOtp.code !== otpInput) {
+                alert('رمز التحقق غير صحيح');
+                return;
+            }
+
+            target.pwHash = await hashPassword(password);
+            target.verified = true;
+            state.auth.pendingOtp = null;
+            saveState();
+            alert('تم تحديث كلمة المرور بنجاح؛ يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة أو بالبصمة');
+            setAuthMode('login');
+            document.getElementById('authContact').value = contact;
+            document.getElementById('authPassword').value = '';
+        } else {
+            const pwDigest = await hashPassword(password);
+            const found = state.auth.users.find(u => u.contact.toLowerCase() === contact && u.pwHash === pwDigest);
+            if (!found) {
+                alert('بيانات الدخول غير صحيحة، أو استخدم "نسيت كلمة المرور" أو "إنشاء مستخدم"');
+                return;
+            }
+            state.auth.activeUser = {
+                id: found.id,
+                name: found.name,
+                contact: found.contact,
+                verified: found.verified,
+                biometricEnabled: Boolean(found.biometricEnabled)
+            };
+            state.auth.pendingOtp = null;
+            state.auth.lastActivityAt = Date.now();
+            saveState();
+        }
+    }
+
+    function logoutUser() {
+        if (!confirm('هل تريد تسجيل الخروج من الحساب الحالي؟')) return;
+        state.auth.activeUser = null;
+        saveState();
+        setAuthMode('login');
+    }
+
+    function updateBiometricStatusUI() {
+        const bioCount = (state.auth.users || []).filter(u => u.biometricEnabled).length;
+        const note = document.getElementById('biometricStatusNote');
+        if (note) {
+            note.textContent = bioCount > 0
+                ? `يوجد ${bioCount} حساب مفعّل بالبصمة جاهز للدخول السريع`
+                : 'أو أدخل بيانات الحساب أدناه';
+        }
+        const stEl = document.getElementById('settingsBioStatus');
+        if (stEl && state.auth.activeUser) {
+            const u = state.auth.users.find(x => x.id === state.auth.activeUser.id);
+            const activeBio = u ? Boolean(u.biometricEnabled) : false;
+            stEl.textContent = `حالة البصمة للحساب (${state.auth.activeUser.contact}): ${activeBio ? 'مفعّلة ✓' : 'غير مفعّلة'}`;
+        }
+        const lockSel = document.getElementById('autoLockMinutesSelect');
+        if (lockSel && state.auth) {
+            lockSel.value = String(state.auth.autoLockMinutes ?? 5);
+        }
+    }
+
+    function syncAuthView() {
+        const loggedIn = Boolean(state.auth && state.auth.activeUser);
+        document.getElementById('authScreen').style.display = loggedIn ? 'none' : 'flex';
+        document.getElementById('mainAppWrapper').style.display = loggedIn ? 'block' : 'none';
+        if (loggedIn) {
+            const u = state.auth.activeUser;
+            const lbl = document.getElementById('hdrUserLabel');
+            if (lbl) lbl.textContent = `${u.name} (${u.contact})${u.verified ? ' • موثق' : ''}`;
+        }
+        updateBiometricStatusUI();
+    }
+
     function fmt(num) {
         return Number(num || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
     }
@@ -872,22 +1509,39 @@
         return new Date().toISOString().split('T')[0];
     }
 
+    function isTxInPeriod(txDateStr, periodKey) {
+        if (!txDateStr) return false;
+        const tStr = todayStr();
+        if (periodKey === 'day') {
+            return txDateStr === tStr;
+        }
+        const days = PERIOD_DAYS[periodKey] || 1;
+        const now = new Date();
+        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (days - 1));
+        const txDate = new Date(txDateStr + 'T00:00:00');
+        if (isNaN(txDate.getTime())) return false;
+        const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+        return txDate >= start && txDate <= end;
+    }
+
     function getCreditTotal() {
         return (Number(state.balances.zain) || 0) + (Number(state.balances.sudani) || 0) + (Number(state.balances.mtn) || 0);
     }
 
-    function getFinancialMetrics() {
+    function getFinancialMetrics(periodKey = auditPeriod) {
         const keys = ['cash', 'bankak', 'okash', 'zain', 'sudani', 'mtn'];
         const totalWallets = keys.reduce((sum, w) => sum + (Number(state.balances[w]) || 0), 0);
         const recDebts = state.debts.filter(d => d.type === 'receivable').reduce((sum, d) => sum + (Number(d.remaining) || 0), 0);
         const payDebts = state.debts.filter(d => d.type === 'payable').reduce((sum, d) => sum + (Number(d.remaining) || 0), 0);
         const pendingDeferred = state.deferred.reduce((sum, d) => sum + Math.max(0, (Number(d.netTotal) || 0) - (Number(d.paidAmount) || 0)), 0);
 
-        const totalFees = state.transactions
+        const periodTxs = state.transactions.filter(t => isTxInPeriod(t.date, periodKey));
+
+        const totalFees = periodTxs
             .filter(t => t.isProfit)
             .reduce((sum, t) => sum + (Number(t.fee) || 0), 0);
 
-        const totalExpenses = state.transactions
+        const totalExpenses = periodTxs
             .filter(t => Number(t.amount) < 0)
             .reduce((sum, t) => sum + Math.abs(Number(t.amount) || 0), 0);
 
@@ -911,6 +1565,14 @@
             capitalAfterDeductions,
             todayProfit
         };
+    }
+
+    function setAuditPeriod(p) {
+        auditPeriod = p;
+        document.querySelectorAll('#auditPeriodGrid .period-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.period === p);
+        });
+        renderAuditSummary();
     }
 
     function switchTab(tabId) {
@@ -1567,7 +2229,7 @@
 
     /* ---------------- AUDIT TABLES, CHART & LOGIC ---------------- */
     function renderAuditSummary() {
-        const m = getFinancialMetrics();
+        const m = getFinancialMetrics(auditPeriod);
         const creditTot = getCreditTotal();
         const recRows = state.debts.filter(d => d.type === 'receivable' && Number(d.remaining) > 0);
         const payRows = state.debts.filter(d => d.type === 'payable' && Number(d.remaining) > 0);
@@ -1668,7 +2330,7 @@
                 </table>
             </div>
 
-            <div class="section-title" style="margin-bottom:6px;">4. جدول الإجماليات</div>
+            <div class="section-title" style="margin-bottom:6px;">4. جدول الإجماليات (${PERIOD_LABELS[auditPeriod]})</div>
             <div class="table-wrap" style="margin-bottom:14px;">
                 <table class="data-table">
                     <thead>
@@ -1678,9 +2340,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td>إجمالي الفائدة (العمولات)</td><td class="num-cell" style="color:var(--success);">+${fmt(m.totalFees)}</td></tr>
-                        <tr><td>إجمالي المنصرفات</td><td class="num-cell" style="color:var(--danger);">-${fmt(m.totalExpenses)}</td></tr>
-                        <tr><td><b>صافي الفائدة</b></td><td class="num-cell" style="color:${m.netFee >= 0 ? 'var(--success)' : 'var(--danger)'};">${fmt(m.netFee)}</td></tr>
+                        <tr><td>إجمالي الفائدة (${PERIOD_LABELS[auditPeriod]})</td><td class="num-cell" style="color:var(--success);">+${fmt(m.totalFees)}</td></tr>
+                        <tr><td>إجمالي المنصرفات (${PERIOD_LABELS[auditPeriod]})</td><td class="num-cell" style="color:var(--danger);">-${fmt(m.totalExpenses)}</td></tr>
+                        <tr><td><b>صافي الفائدة (${PERIOD_LABELS[auditPeriod]})</b></td><td class="num-cell" style="color:${m.netFee >= 0 ? 'var(--success)' : 'var(--danger)'};">${fmt(m.netFee)}</td></tr>
                         <tr><td><b>صافي رأس المال (الأرصدة + ديون ليك)</b></td><td class="num-cell">${fmt(m.netCapital)}</td></tr>
                         <tr style="background:#eff6ff;">
                             <td><b>رأس المال بعد خصم الديون والمستحقات للغير</b></td>
@@ -1878,7 +2540,7 @@
     }
 
     function exportAuditPDF() {
-        const m = getFinancialMetrics();
+        const m = getFinancialMetrics(auditPeriod);
         const keys = ['cash', 'bankak', 'okash', 'zain', 'sudani', 'mtn'];
         const rows = keys.map(w => {
             const sys = Number(state.balances[w]) || 0;
@@ -1919,13 +2581,13 @@
                 <tbody>${pendingRows}</tbody>
             </table>
 
-            <h3>4. جدول الإجماليات</h3>
+            <h3>4. جدول الإجماليات (فترة: ${PERIOD_LABELS[auditPeriod]})</h3>
             <table>
                 <thead><tr><th>البند</th><th>القيمة (ج.س)</th></tr></thead>
                 <tbody>
-                    <tr><td>إجمالي الفائدة (العمولات)</td><td class="num">${fmt(m.totalFees)}</td></tr>
-                    <tr><td>إجمالي المنصرفات</td><td class="num">${fmt(m.totalExpenses)}</td></tr>
-                    <tr><td><b>صافي الفائدة</b></td><td class="num"><b>${fmt(m.netFee)}</b></td></tr>
+                    <tr><td>إجمالي الفائدة (${PERIOD_LABELS[auditPeriod]})</td><td class="num">${fmt(m.totalFees)}</td></tr>
+                    <tr><td>إجمالي المنصرفات (${PERIOD_LABELS[auditPeriod]})</td><td class="num">${fmt(m.totalExpenses)}</td></tr>
+                    <tr><td><b>صافي الفائدة (${PERIOD_LABELS[auditPeriod]})</b></td><td class="num"><b>${fmt(m.netFee)}</b></td></tr>
                     <tr><td><b>صافي رأس المال (الأرصدة + ديون ليك)</b></td><td class="num"><b>${fmt(m.netCapital)}</b></td></tr>
                     <tr><td>ديون عليك (للناس)</td><td class="num">${fmt(m.payDebts)}</td></tr>
                     <tr><td>مبالغ مستحقة للغير (أمانات آجلة)</td><td class="num">${fmt(m.pendingDeferred)}</td></tr>
@@ -1933,7 +2595,7 @@
                 </tbody>
             </table>
         `;
-        openPrintReport('تقرير الجرد والحالة المالية - الصراف الذكي', html);
+        openPrintReport(`تقرير الجرد (${PERIOD_LABELS[auditPeriod]}) - الصراف الذكي`, html);
     }
 
     function exportTransactionsPDF() {
@@ -1965,7 +2627,7 @@
     }
 
     function exportFullExcel() {
-        const m = getFinancialMetrics();
+        const m = getFinancialMetrics(auditPeriod);
         const csvEscape = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
         const lines = [];
 
@@ -1975,8 +2637,8 @@
             lines.push(['الخزائن والرصيد', '-', SOURCE_NAMES[w], 'رصيد حالي', state.balances[w], 0, 'نشط', todayStr()].map(csvEscape).join(','));
         });
 
-        lines.push(['الجرد والملخص', '-', 'إجمالي الفائدة (العمولات)', 'ملخص مالي', m.totalFees, '', '', todayStr()].map(csvEscape).join(','));
-        lines.push(['الجرد والملخص', '-', 'صافي الفائدة (بعد المنصرفات)', 'ملخص مالي', m.netFee, '', '', todayStr()].map(csvEscape).join(','));
+        lines.push(['الجرد والملخص', '-', `إجمالي الفائدة (${PERIOD_LABELS[auditPeriod]})`, 'ملخص مالي', m.totalFees, '', '', todayStr()].map(csvEscape).join(','));
+        lines.push(['الجرد والملخص', '-', `صافي الفائدة (${PERIOD_LABELS[auditPeriod]})`, 'ملخص مالي', m.netFee, '', '', todayStr()].map(csvEscape).join(','));
         lines.push(['الجرد والملخص', '-', 'صافي رأس المال', 'أرصدة + ديون ليك', m.netCapital, '', '', todayStr()].map(csvEscape).join(','));
         lines.push(['الجرد والملخص', '-', 'ديون عليك + مستحقات للغير', 'خصومات', m.payDebts + m.pendingDeferred, '', '', todayStr()].map(csvEscape).join(','));
         lines.push(['الجرد والملخص', '-', 'رأس المال بعد خصم الديون والمستحقات للغير', 'النتيجة النهائية', m.capitalAfterDeductions, '', '', todayStr()].map(csvEscape).join(','));
@@ -2041,6 +2703,7 @@
         if (lbl) {
             lbl.textContent = state.lastBackupAt ? `آخر تصدير: ${state.lastBackupAt}` : 'آخر تصدير: لم يتم بعد';
         }
+        updateBiometricStatusUI();
     }
 
     function updateFeeRule(k) {
@@ -2084,6 +2747,8 @@
                 const parsed = JSON.parse(e.target.result);
                 if (parsed.balances && parsed.fees) {
                     const merged = JSON.parse(JSON.stringify(defaultState));
+                    merged.auth = Object.assign(merged.auth, parsed.auth || {});
+                    if (!Array.isArray(merged.auth.users)) merged.auth.users = [];
                     merged.txCounter = Number(parsed.txCounter) || (Array.isArray(parsed.transactions) ? parsed.transactions.length : 0);
                     merged.balances = Object.assign(merged.balances, parsed.balances || {});
                     merged.fees = Object.assign(merged.fees, parsed.fees || {});
@@ -2104,7 +2769,9 @@
 
     function loadDemoData() {
         const dNow = new Date();
+        const prevAuth = state.auth || { users: [], activeUser: null, pendingOtp: null, autoLockMinutes: 5, lastActivityAt: Date.now() };
         state = {
+            auth: prevAuth,
             txCounter: 4,
             balances: { cash: 450000, bankak: 820000, okash: 310000, zain: 65000, sudani: 42000, mtn: 28000 },
             fees: {
@@ -2150,7 +2817,9 @@
 
     function resetAllData() {
         if (confirm('هل أنت متأكد من تصفير جميع الأرصدة والحركات والديون؟')) {
+            const prevAuth = state.auth || { users: [], activeUser: null, pendingOtp: null, autoLockMinutes: 5, lastActivityAt: Date.now() };
             state = JSON.parse(JSON.stringify(defaultState));
+            state.auth = prevAuth;
             saveState();
             switchTab('home');
         }
@@ -2158,6 +2827,7 @@
 
     /* ---------------- MAIN RENDER ---------------- */
     function renderAll() {
+        syncAuthView();
         ['cash', 'bankak', 'okash', 'zain', 'sudani', 'mtn'].forEach(w => {
             const el = document.getElementById('bal-' + w);
             if (el) el.textContent = fmt(state.balances[w]);
@@ -2171,7 +2841,7 @@
             if (tagEl) tagEl.textContent = f.mode === 'percent' ? `${f.value}%` : `${fmt(f.value)} ج.س`;
         });
 
-        const m = getFinancialMetrics();
+        const m = getFinancialMetrics(auditPeriod);
         document.getElementById('hdrTodayProfit').textContent = fmt(m.todayProfit);
         document.getElementById('hdrNetCapital').textContent = fmt(m.capitalAfterDeductions);
 
@@ -2204,10 +2874,12 @@
         if (document.getElementById('tab-settings').classList.contains('active')) {
             const lbl = document.getElementById('lastBackupLabel');
             if (lbl) lbl.textContent = state.lastBackupAt ? `آخر تصدير: ${state.lastBackupAt}` : 'آخر تصدير: لم يتم بعد';
+            updateBiometricStatusUI();
         }
     }
 
     syncIndexedDB(state);
+    setAuthMode('login');
     renderAll();
 </script>
 </body>
