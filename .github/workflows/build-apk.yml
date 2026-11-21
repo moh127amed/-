@@ -20,11 +20,11 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Setup Java
+      - name: Setup Java 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Accept Android Licenses
         run: |
@@ -32,6 +32,9 @@ jobs:
 
       - name: Build Capacitor APK
         run: |
+          export JAVA_HOME="${JAVA_HOME_21_X64:-$JAVA_HOME}"
+          export PATH="$JAVA_HOME/bin:$PATH"
+          java -version
           mkdir -p www
           cp index.html www/index.html
           npm init -y
