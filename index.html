@@ -1,0 +1,2214 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>الصراف الذكي - إدارة التحويلات والكاش</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --success: #059669;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --bankak: #b91c1c;
+            --okash: #ea580c;
+            --credit: #7c3aed;
+            --cash: #047857;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 85px; max-width: 520px; margin: 0 auto; min-height: 100vh; position: relative; }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 16px 16px 20px;
+            border-bottom-left-radius: 22px;
+            border-bottom-right-radius: 22px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .app-title { font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .profit-pill {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.45);
+            color: #6ee7b7;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .capital-box {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .capital-label { font-size: 0.78rem; color: #cbd5e1; }
+        .capital-val { font-size: 1.25rem; font-weight: 800; color: #ffffff; direction: ltr; }
+
+        .backup-alert {
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            color: #92400e;
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+            font-size: 0.78rem;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Containers & Sections */
+        .container { padding: 14px; }
+        .tab-section { display: none; animation: fadeIn 0.2s ease-in-out; }
+        .tab-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Wallets Grid */
+        .wallets-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+        .wallet-card {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+        }
+        .wallet-card::before { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 5px; }
+        .w-cash::before { background: var(--cash); }
+        .w-bankak::before { background: var(--bankak); }
+        .w-okash::before { background: var(--okash); }
+        .w-credit::before { background: var(--credit); }
+        .wallet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .wallet-name { font-weight: 700; font-size: 0.9rem; }
+        .wallet-fee-tag { font-size: 0.68rem; background: #f1f5f9; color: var(--muted); padding: 2px 6px; border-radius: 6px; font-weight: 700; }
+        .wallet-bal { font-size: 1.15rem; font-weight: 800; direction: ltr; text-align: right; }
+        .wallet-sub-lines { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); font-size: 0.68rem; color: var(--muted); display: flex; flex-direction: column; gap: 2px; }
+        .wallet-sub-row { display: flex; justify-content: space-between; }
+
+        /* Quick Action Buttons */
+        .section-title { font-size: 0.92rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .actions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 18px; }
+        .action-btn {
+            border: none;
+            border-radius: 14px;
+            padding: 13px 10px;
+            text-align: right;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: transform 0.1s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+        .action-btn:active { transform: scale(0.97); }
+        .btn-in-app { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+        .btn-out-app { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+        .btn-credit { background: #f5f3ff; border: 1px solid #ddd6fe; color: #5b21b6; }
+        .btn-transfer { background: #eef2ff; border: 1px solid #c7d2fe; color: #3730a3; }
+        .btn-add-cash { background: #f0fdf4; border: 1px solid #86efac; color: #166534; }
+        .btn-expense { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+        .action-icon { font-size: 1.3rem; }
+        .action-title { font-weight: 800; font-size: 0.85rem; line-height: 1.25; }
+        .action-sub { font-size: 0.7rem; opacity: 0.85; }
+
+        /* Cards & Lists */
+        .card { background: var(--card); border-radius: 14px; padding: 14px; border: 1px solid var(--border); margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .filter-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+        .filter-bar input[type="date"], .filter-bar input[type="text"] { flex: 1; min-width: 135px; padding: 7px 10px; font-size: 0.82rem; }
+
+        /* Tables */
+        .table-wrap { width: 100%; overflow-x: auto; margin-top: 6px; border-radius: 10px; border: 1px solid var(--border); }
+        table.data-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; background: #fff; }
+        table.data-table th { background: #f8fafc; color: var(--primary); font-weight: 800; text-align: right; padding: 9px 7px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        table.data-table td { padding: 8px 7px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        table.data-table tr:last-child td { border-bottom: none; }
+        .num-cell { direction: ltr; text-align: left; font-weight: 800; white-space: nowrap; }
+        .serial-pill { display: inline-block; background: #f1f5f9; border: 1px solid #cbd5e1; color: #0f172a; font-family: monospace; font-size: 0.72rem; font-weight: 800; padding: 2px 6px; border-radius: 6px; direction: ltr; white-space: nowrap; }
+
+        /* Chart Box */
+        .chart-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 10px; margin-top: 8px; }
+        .chart-bar-row { margin-bottom: 8px; }
+        .chart-bar-row:last-child { margin-bottom: 0; }
+        .chart-bar-label { display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 700; margin-bottom: 3px; }
+        .chart-track { background: #e2e8f0; height: 10px; border-radius: 99px; overflow: hidden; }
+        .chart-fill { height: 100%; border-radius: 99px; transition: width 0.35s ease; }
+
+        /* Deferred / Pending Items */
+        .pending-card { border-right: 4px solid var(--warning); }
+        .progress-bar-bg { background: #e2e8f0; height: 7px; border-radius: 99px; overflow: hidden; margin: 8px 0; }
+        .progress-bar-fill { background: var(--success); height: 100%; transition: width 0.3s; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 0.7rem; font-weight: 700; }
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .badge-partial { background: #dbeafe; color: #1e40af; }
+        .badge-done { background: #d1fae5; color: #065f46; }
+
+        /* Forms & Inputs */
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 5px; color: var(--text); }
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            background: #f8fafc;
+            color: var(--text);
+            outline: none;
+        }
+        input:focus, select:focus { border-color: var(--accent); background: #fff; }
+        .segmented { display: flex; background: #e2e8f0; padding: 4px; border-radius: 10px; margin-bottom: 12px; gap: 4px; }
+        .seg-btn {
+            flex: 1;
+            border: none;
+            padding: 8px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+        }
+        .seg-btn.active { background: #ffffff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .btn-primary {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+        .btn-sm { padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; border: none; cursor: pointer; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-outline { background: #f1f5f9; color: var(--text); border: 1px solid #cbd5e1; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-pdf { background: #be123c; color: white; }
+        .btn-excel { background: #15803d; color: white; }
+        .export-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+        .debt-actions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+
+        /* Bottom Navigation */
+        nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 520px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 4px 10px;
+            z-index: 50;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.04);
+        }
+        .nav-item {
+            border: none;
+            background: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            color: var(--muted);
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            position: relative;
+            flex: 1;
+        }
+        .nav-item.active { color: var(--accent); }
+        .nav-icon { font-size: 1.25rem; }
+        .nav-badge {
+            position: absolute;
+            top: -2px;
+            right: 22%;
+            background: var(--danger);
+            color: white;
+            font-size: 0.65rem;
+            padding: 1px 5px;
+            border-radius: 99px;
+            font-weight: 800;
+        }
+
+        /* Modal */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            z-index: 100;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .modal-backdrop.open { display: flex; }
+        .modal-sheet {
+            background: white;
+            width: 100%;
+            max-width: 520px;
+            border-top-left-radius: 22px;
+            border-top-right-radius: 22px;
+            padding: 18px 16px 24px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.22s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .modal-title { font-weight: 800; font-size: 1.05rem; }
+        .close-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; font-weight: 800; }
+
+        .summary-box { background: #f8fafc; border: 1px dashed #94a3b8; border-radius: 10px; padding: 10px; margin-bottom: 12px; font-size: 0.82rem; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .summary-row:last-child { margin-bottom: 0; font-weight: 800; color: var(--primary); border-top: 1px solid #e2e8f0; padding-top: 4px; }
+        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .empty-state { text-align: center; padding: 26px 12px; color: var(--muted); font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-top">
+        <div class="app-title">💼 الصراف الذكي</div>
+        <div class="profit-pill">أرباح اليوم: <span id="hdrTodayProfit">0</span> ج.س</div>
+    </div>
+    <div class="capital-box">
+        <div>
+            <div class="capital-label">رأس المال بعد خصم الديون والمستحقات</div>
+            <div style="font-size: 0.68rem; color: #94a3b8;" id="hdrSaveStatus">محفوظ محلياً • جاهز</div>
+        </div>
+        <div class="capital-val" id="hdrNetCapital">0</div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="backup-alert" id="backupReminderBanner">
+        <span>⚠️ يُنصح بتصدير نسخة احتياطية لحماية بياناتك.</span>
+        <button class="btn-sm btn-success" onclick="exportBackup()">تصدير الآن</button>
+    </div>
+
+    <!-- TAB 1: HOME -->
+    <section id="tab-home" class="tab-section active">
+        <div class="section-title">
+            <span>الخزائن والمحافظ والرصيد</span>
+            <span style="font-size: 0.72rem; color: var(--muted);">العملة: ج.س</span>
+        </div>
+        <div class="wallets-grid">
+            <div class="wallet-card w-cash">
+                <div class="wallet-head">
+                    <span class="wallet-name">💵 الكاش (الدرج)</span>
+                    <span class="wallet-fee-tag">نقدي</span>
+                </div>
+                <div class="wallet-bal" id="bal-cash">0</div>
+            </div>
+            <div class="wallet-card w-bankak">
+                <div class="wallet-head">
+                    <span class="wallet-name" style="color: var(--bankak);">🔴 بنكك</span>
+                    <span class="wallet-fee-tag" id="tag-bankak">0%</span>
+                </div>
+                <div class="wallet-bal" id="bal-bankak">0</div>
+            </div>
+            <div class="wallet-card w-okash">
+                <div class="wallet-head">
+                    <span class="wallet-name" style="color: var(--okash);">🟠 أوكاش</span>
+                    <span class="wallet-fee-tag" id="tag-okash">0%</span>
+                </div>
+                <div class="wallet-bal" id="bal-okash">0</div>
+            </div>
+            <div class="wallet-card w-credit">
+                <div class="wallet-head">
+                    <span class="wallet-name" style="color: var(--credit);">📶 الرصيد</span>
+                    <span class="wallet-fee-tag">3 شرائح</span>
+                </div>
+                <div class="wallet-bal" id="bal-credit-total">0</div>
+                <div class="wallet-sub-lines">
+                    <div class="wallet-sub-row"><span>زين:</span><b id="bal-zain">0</b></div>
+                    <div class="wallet-sub-row"><span>سوداني:</span><b id="bal-sudani">0</b></div>
+                    <div class="wallet-sub-row"><span>MTN:</span><b id="bal-mtn">0</b></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">تسجيل معاملة سريعة</div>
+        <div class="actions-grid">
+            <button class="action-btn btn-in-app" onclick="openTxModal('in_app')">
+                <span class="action-icon">📥</span>
+                <span class="action-title">استلام تطبيق ⬅ إعطاء كاش</span>
+                <span class="action-sub">تسليم فوري أو آجل على دفعات</span>
+            </button>
+            <button class="action-btn btn-out-app" onclick="openTxModal('out_app')">
+                <span class="action-icon">📤</span>
+                <span class="action-title">استلام كاش ⬅ تحويل تطبيق</span>
+                <span class="action-sub">بنكك أو أوكاش مقابل كاش</span>
+            </button>
+            <button class="action-btn btn-credit" onclick="openTxModal('credit_sale')">
+                <span class="action-icon">📶</span>
+                <span class="action-title">استلام كاش ⬅ تحويل رصيد</span>
+                <span class="action-sub">زين / سوداني / MTN (خصم العمولة)</span>
+            </button>
+            <button class="action-btn btn-transfer" onclick="openTxModal('transfer')">
+                <span class="action-icon">🔄</span>
+                <span class="action-title">تحويل بين التطبيقات والرصيد</span>
+                <span class="action-sub">بنكك / أوكاش / رصيد (بدون عمولة)</span>
+            </button>
+            <button class="action-btn btn-add-cash" onclick="openTxModal('add_cash')">
+                <span class="action-icon">➕</span>
+                <span class="action-title">إضافة كاش مباشر</span>
+                <span class="action-sub">آلات حاسبة • شحن</span>
+            </button>
+            <button class="action-btn btn-expense" onclick="openTxModal('expense')">
+                <span class="action-icon">🧾</span>
+                <span class="action-title">منصرفات / سحب</span>
+                <span class="action-sub">خصم من الكاش أو تطبيق أو رصيد</span>
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="section-title" style="margin-bottom:6px;">
+                <span>العمليات والحركات السابقة</span>
+                <div style="display:flex; gap:6px;">
+                    <button class="btn-sm btn-pdf" onclick="exportTransactionsPDF()">📄 PDF</button>
+                    <button class="btn-sm btn-excel" onclick="exportFullExcel()">📊 إكسيل</button>
+                    <button class="btn-sm btn-outline" onclick="switchTab('deferred')">الآجل (<span id="homePendingCount">0</span>)</button>
+                </div>
+            </div>
+            <div class="filter-bar">
+                <input type="date" id="txFilterDate" onchange="renderTransactionsTable()">
+                <input type="text" id="txFilterSerial" placeholder="🔍 بحث بالرقم المتسلسل..." oninput="renderTransactionsTable()">
+                <button class="btn-sm btn-outline" onclick="clearTxFilters()">عرض الكل</button>
+            </div>
+            <div id="fullTxTableContainer"></div>
+        </div>
+    </section>
+
+    <!-- TAB 2: DEFERRED DELIVERIES (الآجل والدفعات) -->
+    <section id="tab-deferred" class="tab-section">
+        <div class="section-title">
+            <span>استلامات التطبيق الآجلة (أمانات الزبائن)</span>
+        </div>
+        <div class="segmented">
+            <button class="seg-btn active" id="defFilterPending" onclick="setDeferredFilter('pending')">بانتظار التسليم</button>
+            <button class="seg-btn" id="defFilterDone" onclick="setDeferredFilter('done')">المكتملة</button>
+        </div>
+        <div class="form-group">
+            <input type="text" id="defSearch" placeholder="🔍 ابحث بالرقم المتسلسل أو رقم الإشعار أو المستلم..." oninput="renderDeferredList()">
+        </div>
+        <div id="deferredList"></div>
+    </section>
+
+    <!-- TAB 3: DEBTS (الديون) -->
+    <section id="tab-debts" class="tab-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span class="section-title" style="margin:0;">دفتر الديون</span>
+            <button class="btn-sm btn-primary" style="width:auto;" onclick="openDebtModal()">+ إضافة دين</button>
+        </div>
+        <div class="row-2" style="margin-bottom: 12px;">
+            <div class="card" style="margin:0; border-right: 4px solid var(--success);">
+                <div style="font-size: 0.75rem; color: var(--muted);">ديون ليك (طرف الناس)</div>
+                <div style="font-size: 1.1rem; font-weight: 800; color: var(--success); direction: ltr;" id="totalDebtsReceivable">0</div>
+            </div>
+            <div class="card" style="margin:0; border-right: 4px solid var(--danger);">
+                <div style="font-size: 0.75rem; color: var(--muted);">ديون عليك (للناس)</div>
+                <div style="font-size: 1.1rem; font-weight: 800; color: var(--danger); direction: ltr;" id="totalDebtsPayable">0</div>
+            </div>
+        </div>
+        <div id="debtsList"></div>
+    </section>
+
+    <!-- TAB 4: AUDIT / INVENTORY (الجرد) -->
+    <section id="tab-audit" class="tab-section">
+        <div class="section-title">
+            <span>الجرد التفصيلي والمخطط</span>
+            <div class="export-bar" style="margin:0;">
+                <button class="btn-sm btn-pdf" onclick="exportAuditPDF()">📄 تصدير الجرد PDF</button>
+                <button class="btn-sm btn-excel" onclick="exportFullExcel()">📊 إكسيل شامل</button>
+            </div>
+        </div>
+
+        <div class="card" id="auditSummaryCard"></div>
+
+        <div class="card">
+            <div class="section-title" style="margin-bottom:6px;">جدول إدخال الرصيد الفعلي للمطابقة</div>
+            <p style="font-size: 0.78rem; color: var(--muted); margin-bottom: 10px;">أدخل المبلغ الفعلي الموجود حالياً في الدرج وفي كل تطبيق وشريحة رصيد لمعرفة أي زيادة أو عجز:</p>
+            <div id="auditInputsContainer"></div>
+            <button class="btn-primary" onclick="calculateAudit()" style="margin-top: 10px;">📊 مطابقة الجرد الآن</button>
+        </div>
+        <div id="auditResultCard" class="card" style="display: none;"></div>
+    </section>
+
+    <!-- TAB 5: SETTINGS -->
+    <section id="tab-settings" class="tab-section">
+        <div class="section-title">ضبط عمولة التطبيقات والرصيد</div>
+        <div class="card" id="feeSettingsContainer"></div>
+
+        <div class="section-title">تعديل الأرصدة وشرائح الرصيد مباشرة</div>
+        <div class="card">
+            <div class="row-2">
+                <div class="form-group">
+                    <label>💵 الكاش</label>
+                    <input type="number" id="set-bal-cash" step="any">
+                </div>
+                <div class="form-group">
+                    <label>🔴 بنكك</label>
+                    <input type="number" id="set-bal-bankak" step="any">
+                </div>
+                <div class="form-group">
+                    <label>🟠 أوكاش</label>
+                    <input type="number" id="set-bal-okash" step="any">
+                </div>
+                <div class="form-group">
+                    <label>📶 رصيد زين</label>
+                    <input type="number" id="set-bal-zain" step="any">
+                </div>
+                <div class="form-group">
+                    <label>📶 رصيد سوداني</label>
+                    <input type="number" id="set-bal-sudani" step="any">
+                </div>
+                <div class="form-group">
+                    <label>📶 رصيد MTN</label>
+                    <input type="number" id="set-bal-mtn" step="any">
+                </div>
+            </div>
+            <button class="btn-primary" onclick="saveManualBalances()">💾 حفظ الأرصدة</button>
+        </div>
+
+        <div class="section-title">التصدير الشامل والنسخ الاحتياطي</div>
+        <div class="card" style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size:0.75rem; color:var(--muted);" id="lastBackupLabel">آخر تصدير: لم يتم بعد</div>
+            <button class="btn-primary btn-excel" onclick="exportFullExcel()">📊 تصدير ملف إكسيل شامل لكل شيء</button>
+            <button class="btn-primary btn-pdf" onclick="exportAuditPDF()">📄 تصدير تقرير الجرد PDF</button>
+            <button class="btn-primary btn-pdf" onclick="exportTransactionsPDF()">📄 تصدير سجل العمليات PDF</button>
+            <button class="btn-primary" style="background: var(--accent);" onclick="exportBackup()">📤 تصدير نسخة احتياطية (ملف JSON)</button>
+            <label class="btn-primary" style="background: #475569; text-align: center; cursor: pointer; margin: 0;">
+                📥 استيراد نسخة احتياطية
+                <input type="file" accept=".json" style="display: none;" onchange="importBackup(event)">
+            </label>
+            <button class="btn-primary" style="background: var(--warning);" onclick="loadDemoData()">🧪 تعبئة بيانات تجريبية للمعاينة</button>
+            <button class="btn-primary" style="background: var(--danger);" onclick="resetAllData()">🗑️ تصفير كافة البيانات</button>
+        </div>
+    </section>
+</div>
+
+<!-- BOTTOM NAVIGATION -->
+<nav>
+    <button class="nav-item active" onclick="switchTab('home')" id="nav-home">
+        <span class="nav-icon">🏠</span>
+        <span>الرئيسية</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('deferred')" id="nav-deferred">
+        <span class="nav-icon">⏳</span>
+        <span>الآجل</span>
+        <span class="nav-badge" id="navPendingBadge" style="display:none;">0</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('debts')" id="nav-debts">
+        <span class="nav-icon">📒</span>
+        <span>الديون</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('audit')" id="nav-audit">
+        <span class="nav-icon">⚖️</span>
+        <span>الجرد</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('settings')" id="nav-settings">
+        <span class="nav-icon">⚙️</span>
+        <span>الإعدادات</span>
+    </button>
+</nav>
+
+<!-- MODAL: NEW TRANSACTION -->
+<div class="modal-backdrop" id="txModal">
+    <div class="modal-sheet">
+        <div class="modal-header">
+            <span class="modal-title" id="txModalTitle">معاملة جديدة</span>
+            <button class="close-btn" onclick="closeModal('txModal')">✕</button>
+        </div>
+        <form id="txForm" onsubmit="submitTransaction(event)">
+            <input type="hidden" id="txType">
+
+            <div class="summary-box" style="padding:7px 10px; margin-bottom:10px; background:#eff6ff; border-color:#93c5fd;">
+                <div class="summary-row" style="border:none; padding:0;">
+                    <span>الرقم المتسلسل للعملية:</span>
+                    <span class="serial-pill" id="previewSerialCode">260101-0001</span>
+                </div>
+            </div>
+
+            <div id="inAppModeWrapper" style="display:none;">
+                <label>طريقة تسليم الكاش للزبون:</label>
+                <div class="segmented">
+                    <button type="button" class="seg-btn active" id="modeInstantBtn" onclick="setInAppMode('instant')">⚡ تسليم فوري</button>
+                    <button type="button" class="seg-btn" id="modeDeferredBtn" onclick="setInAppMode('deferred')">⏳ تسليم آجل (دفعات)</button>
+                </div>
+            </div>
+
+            <!-- Service Type for Direct Cash (آلات حاسبة / شحن) -->
+            <div class="form-group" id="serviceTypeGroup" style="display:none;">
+                <label>نوع الخدمة</label>
+                <select id="txServiceType" onchange="updateTxPreview()">
+                    <option value="آلات حاسبة">آلات حاسبة</option>
+                    <option value="شحن">شحن</option>
+                </select>
+            </div>
+
+            <!-- Credit Provider (زين / سوداني / MTN) -->
+            <div class="form-group" id="creditProviderGroup" style="display:none;">
+                <label id="creditProviderLabel">شريحة الرصيد</label>
+                <select id="txCreditProvider" onchange="autoCalcFee()">
+                    <option value="zain">📶 زين (Zain)</option>
+                    <option value="sudani">📶 سوداني (Sudani)</option>
+                    <option value="mtn">📶 إم تي إن (MTN)</option>
+                </select>
+            </div>
+
+            <!-- Bank App (بنكك / أوكاش) -->
+            <div class="form-group" id="appSelectGroup">
+                <label id="appSelectLabel">التطبيق البنكي</label>
+                <select id="txApp" onchange="autoCalcFee()">
+                    <option value="bankak">🔴 بنكك (Bankak)</option>
+                    <option value="okash">🟠 أوكاش (oCash)</option>
+                </select>
+            </div>
+
+            <!-- Transfer Source & Destination -->
+            <div class="row-2" id="transferEndpointsGroup" style="display:none;">
+                <div class="form-group">
+                    <label>من جهة (المصدر)</label>
+                    <select id="txFromSource" onchange="updateTxPreview()">
+                        <option value="bankak">🔴 بنكك</option>
+                        <option value="okash">🟠 أوكاش</option>
+                        <option value="zain">📶 رصيد زين</option>
+                        <option value="sudani">📶 رصيد سوداني</option>
+                        <option value="mtn">📶 رصيد MTN</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>إلى جهة (المستلم)</label>
+                    <select id="txToSource" onchange="updateTxPreview()">
+                        <option value="okash">🟠 أوكاش</option>
+                        <option value="bankak">🔴 بنكك</option>
+                        <option value="zain">📶 رصيد زين</option>
+                        <option value="sudani">📶 رصيد سوداني</option>
+                        <option value="mtn">📶 رصيد MTN</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" id="expenseWalletGroup" style="display:none;">
+                <label>الخزينة / البند المخصوم منه</label>
+                <select id="txExpenseWallet">
+                    <option value="cash">💵 الكاش (الدرج)</option>
+                    <option value="bankak">🔴 بنكك</option>
+                    <option value="okash">🟠 أوكاش</option>
+                    <option value="zain">📶 رصيد زين</option>
+                    <option value="sudani">📶 رصيد سوداني</option>
+                    <option value="mtn">📶 رصيد MTN</option>
+                </select>
+            </div>
+
+            <div class="row-2">
+                <div class="form-group">
+                    <label id="amountInputLabel">المبلغ (ج.س)</label>
+                    <input type="number" id="txAmount" required min="1" step="any" placeholder="0" oninput="autoCalcFee()">
+                </div>
+                <div class="form-group" id="feeInputGroup">
+                    <label id="feeInputLabel">العمولة / الفائدة (ج.س)</label>
+                    <input type="number" id="txFee" min="0" step="any" value="0" oninput="updateTxPreview()">
+                </div>
+            </div>
+
+            <div class="row-2" id="refFieldsGroup">
+                <div class="form-group">
+                    <label id="lblCustomerName">اسم المستلم / الزبون</label>
+                    <input type="text" id="txCustomer" placeholder="اختياري">
+                </div>
+                <div class="form-group">
+                    <label id="lblRefNumber">رقم العملية / الإشعار</label>
+                    <input type="text" id="txRef" placeholder="اختياري">
+                </div>
+            </div>
+
+            <div class="form-group" id="noteGroup" style="display:none;">
+                <label id="noteInputLabel">بيان المنصرف</label>
+                <input type="text" id="txNote" placeholder="مثلاً: إيجار، كهرباء، سحب شخصي...">
+            </div>
+
+            <div class="summary-box" id="txPreviewBox"></div>
+
+            <button type="submit" class="btn-primary">✅ تأكيد وحفظ المعاملة</button>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: PAYOUT DEFERRED INSTALLMENT -->
+<div class="modal-backdrop" id="payoutModal">
+    <div class="modal-sheet">
+        <div class="modal-header">
+            <span class="modal-title">تسليم دفعة من حوالة آجلة</span>
+            <button class="close-btn" onclick="closeModal('payoutModal')">✕</button>
+        </div>
+        <div id="payoutInfoBox" class="summary-box"></div>
+        <form onsubmit="submitPayout(event)">
+            <input type="hidden" id="payoutDefId">
+            <div class="form-group">
+                <label>المبلغ المسلم الآن للزبون (ج.س)</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="number" id="payoutAmount" required min="1" step="any">
+                    <button type="button" class="btn-sm btn-outline" onclick="fillRemainingPayout()">كامل المتبقي</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>طريقة التسليم للزبون</label>
+                <select id="payoutMethod">
+                    <option value="cash">💵 تسليم كاش من الدرج</option>
+                    <option value="bankak">🔴 تحويل عبر بنكك</option>
+                    <option value="okash">🟠 تحويل عبر أوكاش</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-primary">💸 تأكيد تسليم الدفعة</button>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: ADD / EDIT DEBT -->
+<div class="modal-backdrop" id="debtModal">
+    <div class="modal-sheet">
+        <div class="modal-header">
+            <span class="modal-title" id="debtModalTitle">تسجيل دين جديد</span>
+            <button class="close-btn" onclick="closeModal('debtModal')">✕</button>
+        </div>
+        <form id="debtForm" onsubmit="submitDebt(event)">
+            <input type="hidden" id="editDebtId">
+            <div class="form-group">
+                <label>نوع الدين</label>
+                <select id="debtType">
+                    <option value="receivable">🟢 دين ليك (مبلغ طرف زبون/تاجر)</option>
+                    <option value="payable">🔴 دين عليك (مبلغ مستحق للغير)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>اسم الشخص / الجهة</label>
+                <input type="text" id="debtPerson" required placeholder="اكتب الاسم...">
+            </div>
+            <div class="row-2" id="debtNewAmountGroup">
+                <div class="form-group">
+                    <label>المبلغ (ج.س)</label>
+                    <input type="number" id="debtAmount" min="0" step="any">
+                </div>
+                <div class="form-group">
+                    <label>الخزينة المتأثرة</label>
+                    <select id="debtWallet">
+                        <option value="none">بدون تأثير على الرصيد (دين سابق)</option>
+                        <option value="cash">💵 الكاش</option>
+                        <option value="bankak">🔴 بنكك</option>
+                        <option value="okash">🟠 أوكاش</option>
+                        <option value="zain">📶 رصيد زين</option>
+                        <option value="sudani">📶 رصيد سوداني</option>
+                        <option value="mtn">📶 رصيد MTN</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row-2" id="debtEditAmountGroup" style="display:none;">
+                <div class="form-group">
+                    <label>المبلغ الكلي (ج.س)</label>
+                    <input type="number" id="debtEditTotal" min="0" step="any">
+                </div>
+                <div class="form-group">
+                    <label>المتبقي الحالي (ج.س)</label>
+                    <input type="number" id="debtEditRemaining" min="0" step="any">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>ملاحظة</label>
+                <input type="text" id="debtNote" placeholder="تفاصيل إضافية...">
+            </div>
+            <button type="submit" class="btn-primary" id="debtSubmitBtn">💾 حفظ الدين</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const SOURCE_NAMES = {
+        cash: 'الكاش',
+        bankak: 'بنكك',
+        okash: 'أوكاش',
+        zain: 'رصيد زين',
+        sudani: 'رصيد سوداني',
+        mtn: 'رصيد MTN'
+    };
+
+    const STORAGE_KEY = 'smart_exchange_stable_v3';
+    const LEGACY_KEYS = ['smart_exchange_stable_v2', 'smart_exchange_stable_v1', 'smart_exchange_v5', 'smart_exchange_v4'];
+
+    const defaultState = {
+        txCounter: 0,
+        balances: { cash: 0, bankak: 0, okash: 0, zain: 0, sudani: 0, mtn: 0 },
+        fees: {
+            bankak: { mode: 'percent', value: 1 },
+            okash: { mode: 'percent', value: 1 },
+            zain: { mode: 'percent', value: 0 },
+            sudani: { mode: 'percent', value: 0 },
+            mtn: { mode: 'percent', value: 0 },
+            transfer: { mode: 'fixed', value: 0 }
+        },
+        transactions: [],
+        deferred: [],
+        debts: [],
+        lastBackupAt: null
+    };
+
+    function formatSerialCode(seqNum, dateObj = new Date()) {
+        const yy = String(dateObj.getFullYear()).slice(-2);
+        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const dd = String(dateObj.getDate()).padStart(2, '0');
+        const seq = String(seqNum).padStart(4, '0');
+        return `${yy}${mm}${dd}-${seq}`;
+    }
+
+    function peekNextSerial() {
+        const nextSeq = (Number(state.txCounter) || 0) + 1;
+        return formatSerialCode(nextSeq, new Date());
+    }
+
+    function consumeNextSerial() {
+        state.txCounter = (Number(state.txCounter) || 0) + 1;
+        return formatSerialCode(state.txCounter, new Date());
+    }
+
+    function loadInitialState() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY) || LEGACY_KEYS.map(k => localStorage.getItem(k)).find(Boolean);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                const merged = JSON.parse(JSON.stringify(defaultState));
+                merged.balances = Object.assign(merged.balances, parsed.balances || {});
+                merged.fees = Object.assign(merged.fees, parsed.fees || {});
+                merged.transactions = Array.isArray(parsed.transactions) ? parsed.transactions : [];
+                merged.deferred = Array.isArray(parsed.deferred) ? parsed.deferred : [];
+                merged.debts = Array.isArray(parsed.debts) ? parsed.debts : [];
+                merged.lastBackupAt = parsed.lastBackupAt || null;
+
+                // Ensure counter is at least total existing transactions and backfill missing serials
+                let counter = Number(parsed.txCounter) || 0;
+                if (counter < merged.transactions.length) {
+                    counter = merged.transactions.length;
+                }
+                const total = merged.transactions.length;
+                merged.transactions.forEach((tx, idx) => {
+                    if (!tx.serial) {
+                        const dObj = tx.date ? new Date(tx.date) : new Date();
+                        const validDate = isNaN(dObj.getTime()) ? new Date() : dObj;
+                        tx.serial = formatSerialCode(total - idx, validDate);
+                    }
+                });
+                merged.txCounter = counter;
+                return merged;
+            }
+        } catch (e) {}
+        return JSON.parse(JSON.stringify(defaultState));
+    }
+
+    function syncIndexedDB(data) {
+        try {
+            if (!('indexedDB' in window)) return;
+            const req = indexedDB.open('SmartExchangeDB', 1);
+            req.onupgradeneeded = (ev) => {
+                const db = ev.target.result;
+                if (!db.objectStoreNames.contains('stateStore')) {
+                    db.createObjectStore('stateStore');
+                }
+            };
+            req.onsuccess = (ev) => {
+                const db = ev.target.result;
+                const tx = db.transaction('stateStore', 'readwrite');
+                tx.objectStore('stateStore').put(JSON.stringify(data), 'latest');
+            };
+        } catch (e) {}
+    }
+
+    let state = loadInitialState();
+    let currentInAppMode = 'instant';
+    let deferredFilter = 'pending';
+
+    function saveState() {
+        const serialized = JSON.stringify(state);
+        try {
+            localStorage.setItem(STORAGE_KEY, serialized);
+        } catch (e) {}
+        syncIndexedDB(state);
+        const stEl = document.getElementById('hdrSaveStatus');
+        if (stEl) {
+            const t = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+            stEl.textContent = `تم الحفظ محلياً • ${t}`;
+        }
+        renderAll();
+    }
+
+    function fmt(num) {
+        return Number(num || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
+    }
+
+    function todayStr() {
+        return new Date().toISOString().split('T')[0];
+    }
+
+    function getCreditTotal() {
+        return (Number(state.balances.zain) || 0) + (Number(state.balances.sudani) || 0) + (Number(state.balances.mtn) || 0);
+    }
+
+    function getFinancialMetrics() {
+        const keys = ['cash', 'bankak', 'okash', 'zain', 'sudani', 'mtn'];
+        const totalWallets = keys.reduce((sum, w) => sum + (Number(state.balances[w]) || 0), 0);
+        const recDebts = state.debts.filter(d => d.type === 'receivable').reduce((sum, d) => sum + (Number(d.remaining) || 0), 0);
+        const payDebts = state.debts.filter(d => d.type === 'payable').reduce((sum, d) => sum + (Number(d.remaining) || 0), 0);
+        const pendingDeferred = state.deferred.reduce((sum, d) => sum + Math.max(0, (Number(d.netTotal) || 0) - (Number(d.paidAmount) || 0)), 0);
+
+        const totalFees = state.transactions
+            .filter(t => t.isProfit)
+            .reduce((sum, t) => sum + (Number(t.fee) || 0), 0);
+
+        const totalExpenses = state.transactions
+            .filter(t => Number(t.amount) < 0)
+            .reduce((sum, t) => sum + Math.abs(Number(t.amount) || 0), 0);
+
+        const netFee = totalFees - totalExpenses;
+        const netCapital = totalWallets + recDebts;
+        const capitalAfterDeductions = netCapital - payDebts - pendingDeferred;
+
+        const todayProfit = state.transactions
+            .filter(t => t.date === todayStr() && t.isProfit)
+            .reduce((sum, t) => sum + (Number(t.fee) || 0), 0);
+
+        return {
+            totalWallets,
+            recDebts,
+            payDebts,
+            pendingDeferred,
+            totalFees,
+            totalExpenses,
+            netFee,
+            netCapital,
+            capitalAfterDeductions,
+            todayProfit
+        };
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.add('active');
+        document.getElementById('nav-' + tabId).classList.add('active');
+        if (tabId === 'audit') {
+            renderAuditSummary();
+            renderAuditInputs();
+        }
+        if (tabId === 'settings') renderSettings();
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('open');
+    }
+
+    /* ---------------- TRANSACTIONS LOGIC ---------------- */
+    function openTxModal(type) {
+        document.getElementById('txType').value = type;
+        document.getElementById('txForm').reset();
+        document.getElementById('txFee').value = 0;
+        document.getElementById('previewSerialCode').textContent = peekNextSerial();
+
+        const titleEl = document.getElementById('txModalTitle');
+        const inAppWrap = document.getElementById('inAppModeWrapper');
+        const srvGrp = document.getElementById('serviceTypeGroup');
+        const credGrp = document.getElementById('creditProviderGroup');
+        const appGrp = document.getElementById('appSelectGroup');
+        const trGrp = document.getElementById('transferEndpointsGroup');
+        const expGrp = document.getElementById('expenseWalletGroup');
+        const feeGrp = document.getElementById('feeInputGroup');
+        const amtLbl = document.getElementById('amountInputLabel');
+        const feeLbl = document.getElementById('feeInputLabel');
+        const refGrp = document.getElementById('refFieldsGroup');
+        const noteGrp = document.getElementById('noteGroup');
+        const noteLbl = document.getElementById('noteInputLabel');
+        const noteInp = document.getElementById('txNote');
+
+        inAppWrap.style.display = 'none';
+        srvGrp.style.display = 'none';
+        credGrp.style.display = 'none';
+        appGrp.style.display = 'block';
+        trGrp.style.display = 'none';
+        expGrp.style.display = 'none';
+        feeGrp.style.display = 'block';
+        amtLbl.textContent = 'المبلغ (ج.س)';
+        feeLbl.textContent = 'العمولة / الفائدة (ج.س)';
+        refGrp.style.display = 'grid';
+        noteGrp.style.display = 'none';
+        noteLbl.textContent = 'بيان المنصرف';
+        noteInp.placeholder = 'مثلاً: إيجار، كهرباء، سحب شخصي...';
+
+        if (type === 'in_app') {
+            titleEl.textContent = '📥 استلام تطبيق ⬅ إعطاء كاش';
+            document.getElementById('appSelectLabel').textContent = 'التطبيق المستلم للرصيد';
+            inAppWrap.style.display = 'block';
+            setInAppMode('instant');
+        } else if (type === 'out_app') {
+            titleEl.textContent = '📤 استلام كاش ⬅ تحويل تطبيق';
+            document.getElementById('appSelectLabel').textContent = 'التطبيق المحول منه';
+            document.getElementById('lblCustomerName').textContent = 'اسم الزبون (اختياري)';
+            document.getElementById('lblRefNumber').textContent = 'رقم الإشعار (اختياري)';
+        } else if (type === 'credit_sale') {
+            titleEl.textContent = '📶 استلام كاش ⬅ تحويل رصيد';
+            appGrp.style.display = 'none';
+            credGrp.style.display = 'block';
+            amtLbl.textContent = 'المبلغ الكامل المستلم كاش (ج.س)';
+            feeLbl.textContent = 'عمولتك (تُخصم من الرصيد المحول)';
+            document.getElementById('lblCustomerName').textContent = 'رقم الهاتف / الزبون (اختياري)';
+            document.getElementById('lblRefNumber').textContent = 'ملاحظة / مرجع (اختياري)';
+        } else if (type === 'transfer') {
+            titleEl.textContent = '🔄 تحويل بين التطبيقات والرصيد';
+            appGrp.style.display = 'none';
+            trGrp.style.display = 'grid';
+            refGrp.style.display = 'none';
+            feeLbl.textContent = 'عمولة التحويل (0 افتراضياً)';
+        } else if (type === 'add_cash') {
+            titleEl.textContent = '➕ إضافة كاش مباشر';
+            srvGrp.style.display = 'block';
+            appGrp.style.display = 'none';
+            refGrp.style.display = 'none';
+            noteGrp.style.display = 'block';
+            feeLbl.textContent = 'عمولة / فائدة إضافية (اختياري)';
+            noteLbl.textContent = 'ملاحظة / تفاصيل (اختياري)';
+            noteInp.placeholder = 'تفاصيل إضافية للعملية...';
+        } else if (type === 'expense') {
+            titleEl.textContent = '🧾 تسجيل منصرف / سحب';
+            appGrp.style.display = 'none';
+            expGrp.style.display = 'block';
+            feeGrp.style.display = 'none';
+            refGrp.style.display = 'none';
+            noteGrp.style.display = 'block';
+        }
+
+        updateTxPreview();
+        document.getElementById('txModal').classList.add('open');
+    }
+
+    function setInAppMode(mode) {
+        currentInAppMode = mode;
+        document.getElementById('modeInstantBtn').classList.toggle('active', mode === 'instant');
+        document.getElementById('modeDeferredBtn').classList.toggle('active', mode === 'deferred');
+
+        const custInput = document.getElementById('txCustomer');
+        const refInput = document.getElementById('txRef');
+        if (mode === 'deferred') {
+            document.getElementById('lblCustomerName').textContent = 'اسم المستلم *';
+            document.getElementById('lblRefNumber').textContent = 'رقم العملية / الإشعار *';
+            custInput.required = true;
+            refInput.required = true;
+            custInput.placeholder = 'مطلوب للمتابعة';
+            refInput.placeholder = 'مطلوب للمتابعة';
+        } else {
+            document.getElementById('lblCustomerName').textContent = 'اسم الزبون (اختياري)';
+            document.getElementById('lblRefNumber').textContent = 'رقم العملية (اختياري)';
+            custInput.required = false;
+            refInput.required = false;
+            custInput.placeholder = 'اختياري';
+            refInput.placeholder = 'اختياري';
+        }
+        updateTxPreview();
+    }
+
+    function autoCalcFee() {
+        const type = document.getElementById('txType').value;
+        if (type === 'expense' || type === 'add_cash' || type === 'transfer') {
+            updateTxPreview();
+            return;
+        }
+        const amount = parseFloat(document.getElementById('txAmount').value) || 0;
+        const key = type === 'credit_sale' ? document.getElementById('txCreditProvider').value : document.getElementById('txApp').value;
+        const rule = state.fees[key];
+        let fee = 0;
+        if (amount > 0 && rule) {
+            fee = rule.mode === 'percent' ? Math.round((amount * rule.value) / 100) : Number(rule.value);
+        }
+        document.getElementById('txFee').value = fee;
+        updateTxPreview();
+    }
+
+    function updateTxPreview() {
+        const type = document.getElementById('txType').value;
+        const app = document.getElementById('txApp').value;
+        const amount = parseFloat(document.getElementById('txAmount').value) || 0;
+        const fee = parseFloat(document.getElementById('txFee').value) || 0;
+        const box = document.getElementById('txPreviewBox');
+
+        if (type === 'in_app') {
+            const netToGive = Math.max(0, amount - fee);
+            if (currentInAppMode === 'instant') {
+                box.innerHTML = `
+                    <div class="summary-row"><span>يزيد رصيد ${SOURCE_NAMES[app]}:</span><span style="color:var(--success)">+${fmt(amount)}</span></div>
+                    <div class="summary-row"><span>عمولتك (صافي الربح):</span><span style="color:var(--success)">+${fmt(fee)}</span></div>
+                    <div class="summary-row"><span>الكاش المسلم للزبون فوراً:</span><span style="color:var(--danger)">-${fmt(netToGive)}</span></div>
+                `;
+            } else {
+                box.innerHTML = `
+                    <div class="summary-row"><span>يزيد رصيد ${SOURCE_NAMES[app]} فوراً:</span><span style="color:var(--success)">+${fmt(amount)}</span></div>
+                    <div class="summary-row"><span>عمولتك المحتسبة:</span><span style="color:var(--success)">+${fmt(fee)}</span></div>
+                    <div class="summary-row"><span>صافي الأمانة المستحقة للزبون (آجل):</span><span style="color:var(--warning)">${fmt(netToGive)} ج.س</span></div>
+                `;
+            }
+        } else if (type === 'out_app') {
+            box.innerHTML = `
+                <div class="summary-row"><span>الكاش المستلم من الزبون:</span><span style="color:var(--success)">+${fmt(amount + fee)}</span></div>
+                <div class="summary-row"><span>يخصم من رصيد ${SOURCE_NAMES[app]}:</span><span style="color:var(--danger)">-${fmt(amount)}</span></div>
+                <div class="summary-row"><span>عمولتك (صافي الربح):</span><span style="color:var(--success)">+${fmt(fee)}</span></div>
+            `;
+        } else if (type === 'credit_sale') {
+            const prov = document.getElementById('txCreditProvider').value;
+            const netCreditSent = Math.max(0, amount - fee);
+            box.innerHTML = `
+                <div class="summary-row"><span>الكاش المستلم من الزبون:</span><span style="color:var(--success)">+${fmt(amount)} ج.س</span></div>
+                <div class="summary-row"><span>عمولتك المخصومة:</span><span style="color:var(--success)">+${fmt(fee)} ج.س</span></div>
+                <div class="summary-row"><span>الرصيد الفعلي المحول من ${SOURCE_NAMES[prov]}:</span><span style="color:var(--danger)">-${fmt(netCreditSent)} ج.س</span></div>
+            `;
+        } else if (type === 'transfer') {
+            const fromSrc = document.getElementById('txFromSource').value;
+            const toSrc = document.getElementById('txToSource').value;
+            box.innerHTML = `
+                <div class="summary-row"><span>يخصم من ${SOURCE_NAMES[fromSrc]}:</span><span style="color:var(--danger)">-${fmt(amount + fee)}</span></div>
+                <div class="summary-row"><span>يضاف إلى ${SOURCE_NAMES[toSrc]}:</span><span style="color:var(--success)">+${fmt(amount)}</span></div>
+                <div class="summary-row"><span>عمولة التحويل:</span><span>${fmt(fee)}</span></div>
+            `;
+        } else if (type === 'add_cash') {
+            const srv = document.getElementById('txServiceType').value;
+            box.innerHTML = `
+                <div class="summary-row"><span>نوع الخدمة:</span><b>${srv}</b></div>
+                <div class="summary-row"><span>يضاف إلى الكاش (الدرج):</span><span style="color:var(--success)">+${fmt(amount)} ج.س</span></div>
+                ${fee > 0 ? `<div class="summary-row"><span>عمولة/فائدة مسجلة:</span><span style="color:var(--success)">+${fmt(fee)} ج.س</span></div>` : ''}
+            `;
+        } else if (type === 'expense') {
+            const w = document.getElementById('txExpenseWallet').value;
+            box.innerHTML = `
+                <div class="summary-row"><span>يخصم من ${SOURCE_NAMES[w]}:</span><span style="color:var(--danger)">-${fmt(amount)} ج.س</span></div>
+            `;
+        }
+    }
+
+    function submitTransaction(e) {
+        e.preventDefault();
+        const type = document.getElementById('txType').value;
+        const app = document.getElementById('txApp').value;
+        const amount = parseFloat(document.getElementById('txAmount').value) || 0;
+        const fee = parseFloat(document.getElementById('txFee').value) || 0;
+        const customer = document.getElementById('txCustomer').value.trim();
+        const ref = document.getElementById('txRef').value.trim();
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+
+        if (type === 'transfer') {
+            const fromSrc = document.getElementById('txFromSource').value;
+            const toSrc = document.getElementById('txToSource').value;
+            if (fromSrc === toSrc) {
+                alert('يرجى اختيار جهتين مختلفتين للتحويل بينهما');
+                return;
+            }
+        }
+
+        const serialCode = consumeNextSerial();
+
+        if (type === 'in_app') {
+            const netCustomerAmount = Math.max(0, amount - fee);
+            state.balances[app] += amount;
+
+            if (currentInAppMode === 'instant') {
+                state.balances.cash -= netCustomerAmount;
+                state.transactions.unshift({
+                    id: Date.now(),
+                    serial: serialCode,
+                    date: todayStr(),
+                    time: timeStr,
+                    title: `استلام ${SOURCE_NAMES[app]} ⬅ كاش فوري`,
+                    meta: `${customer ? customer + ' • ' : ''}${ref ? 'رقم: ' + ref : 'تسليم مباشر'}`,
+                    amount: amount,
+                    fee: fee,
+                    isProfit: true
+                });
+            } else {
+                const defId = Date.now();
+                state.deferred.unshift({
+                    id: defId,
+                    serial: serialCode,
+                    date: todayStr(),
+                    time: timeStr,
+                    app: app,
+                    customer: customer,
+                    ref: ref,
+                    grossAmount: amount,
+                    fee: fee,
+                    netTotal: netCustomerAmount,
+                    paidAmount: 0,
+                    payouts: []
+                });
+                state.transactions.unshift({
+                    id: defId + 1,
+                    serial: serialCode,
+                    date: todayStr(),
+                    time: timeStr,
+                    title: `استلام ${SOURCE_NAMES[app]} (آجل للمستلم)`,
+                    meta: `المستلم: ${customer} • إشعار: ${ref}`,
+                    amount: amount,
+                    fee: fee,
+                    isProfit: true
+                });
+            }
+        } else if (type === 'out_app') {
+            state.balances[app] -= amount;
+            state.balances.cash += (amount + fee);
+            state.transactions.unshift({
+                id: Date.now(),
+                serial: serialCode,
+                date: todayStr(),
+                time: timeStr,
+                title: `كاش ⬅ تحويل ${SOURCE_NAMES[app]}`,
+                meta: `${customer ? customer + ' • ' : ''}${ref ? 'إشعار: ' + ref : 'تحويل صادر'}`,
+                amount: amount,
+                fee: fee,
+                isProfit: true
+            });
+        } else if (type === 'credit_sale') {
+            const prov = document.getElementById('txCreditProvider').value;
+            const netCreditSent = Math.max(0, amount - fee);
+            state.balances.cash += amount;
+            state.balances[prov] -= netCreditSent;
+            state.transactions.unshift({
+                id: Date.now(),
+                serial: serialCode,
+                date: todayStr(),
+                time: timeStr,
+                title: `كاش ${fmt(amount)} ⬅ ${SOURCE_NAMES[prov]} (${fmt(netCreditSent)} مسحوب)`,
+                meta: `${customer ? customer + ' • ' : ''}عمولة مخصومة: ${fmt(fee)}${ref ? ' • ' + ref : ''}`,
+                amount: amount,
+                fee: fee,
+                isProfit: fee > 0
+            });
+        } else if (type === 'transfer') {
+            const fromSrc = document.getElementById('txFromSource').value;
+            const toSrc = document.getElementById('txToSource').value;
+            state.balances[fromSrc] -= (amount + fee);
+            state.balances[toSrc] += amount;
+            state.transactions.unshift({
+                id: Date.now(),
+                serial: serialCode,
+                date: todayStr(),
+                time: timeStr,
+                title: `تحويل ${SOURCE_NAMES[fromSrc]} ⬅ ${SOURCE_NAMES[toSrc]}`,
+                meta: fee > 0 ? `عمولة: ${fmt(fee)}` : `بدون عمولة`,
+                amount: amount,
+                fee: fee,
+                isProfit: fee > 0
+            });
+        } else if (type === 'add_cash') {
+            const srv = document.getElementById('txServiceType').value;
+            const note = document.getElementById('txNote').value.trim();
+            state.balances.cash += amount;
+            state.transactions.unshift({
+                id: Date.now(),
+                serial: serialCode,
+                date: todayStr(),
+                time: timeStr,
+                title: `إضافة كاش مباشر (${srv})`,
+                meta: note ? `الخدمة: ${srv} • ${note}` : `الخدمة: ${srv}`,
+                amount: amount,
+                fee: fee,
+                isProfit: fee > 0
+            });
+        } else if (type === 'expense') {
+            const w = document.getElementById('txExpenseWallet').value;
+            const note = document.getElementById('txNote').value.trim() || 'منصرف عام';
+            state.balances[w] -= amount;
+            state.transactions.unshift({
+                id: Date.now(),
+                serial: serialCode,
+                date: todayStr(),
+                time: timeStr,
+                title: `منصرف من ${SOURCE_NAMES[w]}`,
+                meta: note,
+                amount: -amount,
+                fee: 0,
+                isProfit: false
+            });
+        }
+
+        closeModal('txModal');
+        saveState();
+    }
+
+    /* ---------------- DEFERRED PAYOUTS ---------------- */
+    function setDeferredFilter(f) {
+        deferredFilter = f;
+        document.getElementById('defFilterPending').classList.toggle('active', f === 'pending');
+        document.getElementById('defFilterDone').classList.toggle('active', f === 'done');
+        renderDeferredList();
+    }
+
+    function openPayoutModal(defId) {
+        const item = state.deferred.find(d => d.id === defId);
+        if (!item) return;
+        const rem = item.netTotal - item.paidAmount;
+        document.getElementById('payoutDefId').value = defId;
+        document.getElementById('payoutAmount').value = rem;
+        document.getElementById('payoutAmount').max = rem;
+        document.getElementById('payoutInfoBox').innerHTML = `
+            <div class="summary-row"><span>الرقم المتسلسل:</span><span class="serial-pill">${item.serial || '-'}</span></div>
+            <div class="summary-row"><span>المستلم:</span><span>${item.customer} (إشعار: ${item.ref})</span></div>
+            <div class="summary-row"><span>التطبيق المستلم:</span><span>${SOURCE_NAMES[item.app]} (${fmt(item.grossAmount)})</span></div>
+            <div class="summary-row"><span>صافي المستحق للزبون:</span><span>${fmt(item.netTotal)} ج.س</span></div>
+            <div class="summary-row"><span>المتبقي غير المسلم:</span><span style="color:var(--danger)">${fmt(rem)} ج.س</span></div>
+        `;
+        document.getElementById('payoutModal').classList.add('open');
+    }
+
+    function fillRemainingPayout() {
+        const defId = Number(document.getElementById('payoutDefId').value);
+        const item = state.deferred.find(d => d.id === defId);
+        if (item) {
+            document.getElementById('payoutAmount').value = item.netTotal - item.paidAmount;
+        }
+    }
+
+    function submitPayout(e) {
+        e.preventDefault();
+        const defId = Number(document.getElementById('payoutDefId').value);
+        const payAmt = parseFloat(document.getElementById('payoutAmount').value) || 0;
+        const method = document.getElementById('payoutMethod').value;
+        const item = state.deferred.find(d => d.id === defId);
+        if (!item) return;
+
+        const rem = item.netTotal - item.paidAmount;
+        if (payAmt <= 0 || payAmt > rem) {
+            alert('المبلغ المدخل أكبر من المتبقي للزبون');
+            return;
+        }
+
+        const serialCode = consumeNextSerial();
+        state.balances[method] -= payAmt;
+        item.paidAmount += payAmt;
+        const nowStr = `${todayStr()} ${new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}`;
+        item.payouts.push({ serial: serialCode, date: nowStr, amount: payAmt, method: method });
+
+        state.transactions.unshift({
+            id: Date.now(),
+            serial: serialCode,
+            date: todayStr(),
+            time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+            title: `تسليم دفعة آجل (${SOURCE_NAMES[method]})`,
+            meta: `للمستلم: ${item.customer} • أصل: ${item.serial || item.ref}`,
+            amount: payAmt,
+            fee: 0,
+            isProfit: false
+        });
+
+        closeModal('payoutModal');
+        saveState();
+    }
+
+    function renderDeferredList() {
+        const query = (document.getElementById('defSearch').value || '').toLowerCase();
+        const container = document.getElementById('deferredList');
+        const filtered = state.deferred.filter(d => {
+            const isDone = (d.netTotal - d.paidAmount) <= 0.01;
+            const matchesTab = deferredFilter === 'done' ? isDone : !isDone;
+            const matchesSearch = d.customer.toLowerCase().includes(query)
+                || d.ref.toLowerCase().includes(query)
+                || (d.serial && d.serial.toLowerCase().includes(query));
+            return matchesTab && matchesSearch;
+        });
+
+        if (filtered.length === 0) {
+            container.innerHTML = `<div class="card empty-state">لا توجد عمليات في هذه القائمة</div>`;
+            return;
+        }
+
+        container.innerHTML = filtered.map(d => {
+            const rem = Math.max(0, d.netTotal - d.paidAmount);
+            const pct = Math.min(100, Math.round((d.paidAmount / d.netTotal) * 100));
+            const isDone = rem <= 0.01;
+            const statusBadge = isDone
+                ? `<span class="badge badge-done">مكتملة التسليم</span>`
+                : (d.paidAmount > 0 ? `<span class="badge badge-partial">مسلم جزئياً</span>` : `<span class="badge badge-pending">بانتظار الاستلام</span>`);
+
+            const historyHtml = d.payouts.length > 0
+                ? `<div style="margin-top:8px; padding-top:6px; border-top:1px dashed #cbd5e1; font-size:0.72rem; color:var(--muted);">
+                    ${d.payouts.map(p => `<div>• [${p.serial || ''}] سحب ${fmt(p.amount)} (${SOURCE_NAMES[p.method]}) - ${p.date}</div>`).join('')}
+                   </div>`
+                : '';
+
+            return `
+                <div class="card pending-card">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+                        <div>
+                            <div style="margin-bottom:3px;"><span class="serial-pill">${d.serial || '-'}</span></div>
+                            <div style="font-weight:800; font-size:0.95rem;">👤 ${d.customer}</div>
+                            <div style="font-size:0.74rem; color:var(--muted);">رقم الإشعار: <b>${d.ref}</b> • عبر ${SOURCE_NAMES[d.app]}</div>
+                        </div>
+                        ${statusBadge}
+                    </div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:8px;">
+                        <span>الصافي: <b>${fmt(d.netTotal)}</b> (عمولة ${fmt(d.fee)})</span>
+                        <span>المتبقي: <b style="color:${isDone ? 'var(--success)' : 'var(--danger)'}">${fmt(rem)}</b></span>
+                    </div>
+                    ${!isDone ? `<button class="btn-sm btn-success" style="width:100%;" onclick="openPayoutModal(${d.id})">💸 تسليم دفعة / سحب للزبون</button>` : ''}
+                    ${historyHtml}
+                </div>
+            `;
+        }).join('');
+    }
+
+    /* ---------------- DEBTS LOGIC (ADD, EDIT, SETTLE, DELETE) ---------------- */
+    function openDebtModal(debtId = null) {
+        document.getElementById('debtForm').reset();
+        const editIdEl = document.getElementById('editDebtId');
+        const newAmtGrp = document.getElementById('debtNewAmountGroup');
+        const editAmtGrp = document.getElementById('debtEditAmountGroup');
+        const titleEl = document.getElementById('debtModalTitle');
+        const btnEl = document.getElementById('debtSubmitBtn');
+        const amtInput = document.getElementById('debtAmount');
+
+        if (debtId !== null) {
+            const debt = state.debts.find(d => d.id === debtId);
+            if (!debt) return;
+            editIdEl.value = debt.id;
+            titleEl.textContent = '✏️ تعديل بيانات الدين';
+            btnEl.textContent = '💾 حفظ التعديلات';
+            newAmtGrp.style.display = 'none';
+            editAmtGrp.style.display = 'grid';
+            amtInput.required = false;
+
+            document.getElementById('debtType').value = debt.type;
+            document.getElementById('debtPerson').value = debt.person;
+            document.getElementById('debtEditTotal').value = debt.total;
+            document.getElementById('debtEditRemaining').value = debt.remaining;
+            document.getElementById('debtNote').value = debt.note || '';
+        } else {
+            editIdEl.value = '';
+            titleEl.textContent = 'تسجيل دين جديد';
+            btnEl.textContent = '💾 حفظ الدين';
+            newAmtGrp.style.display = 'grid';
+            editAmtGrp.style.display = 'none';
+            amtInput.required = true;
+        }
+
+        document.getElementById('debtModal').classList.add('open');
+    }
+
+    function submitDebt(e) {
+        e.preventDefault();
+        const editId = document.getElementById('editDebtId').value;
+        const type = document.getElementById('debtType').value;
+        const person = document.getElementById('debtPerson').value.trim();
+        const note = document.getElementById('debtNote').value.trim();
+
+        if (editId) {
+            const debt = state.debts.find(d => d.id === Number(editId));
+            if (!debt) return;
+            const newTotal = parseFloat(document.getElementById('debtEditTotal').value);
+            const newRem = parseFloat(document.getElementById('debtEditRemaining').value);
+            if (isNaN(newTotal) || isNaN(newRem) || newTotal < 0 || newRem < 0) {
+                alert('يرجى إدخال مبالغ صحيحة');
+                return;
+            }
+            debt.type = type;
+            debt.person = person;
+            debt.total = newTotal;
+            debt.remaining = newRem;
+            debt.note = note;
+        } else {
+            const amount = parseFloat(document.getElementById('debtAmount').value) || 0;
+            const wallet = document.getElementById('debtWallet').value;
+            if (amount <= 0) {
+                alert('يرجى إدخال مبلغ الدين');
+                return;
+            }
+            if (wallet !== 'none') {
+                if (type === 'receivable') state.balances[wallet] -= amount;
+                else state.balances[wallet] += amount;
+            }
+
+            state.debts.unshift({
+                id: Date.now(),
+                type,
+                person,
+                total: amount,
+                remaining: amount,
+                wallet: wallet,
+                note,
+                date: todayStr()
+            });
+        }
+
+        closeModal('debtModal');
+        saveState();
+    }
+
+    function deleteDebt(id) {
+        const debt = state.debts.find(d => d.id === id);
+        if (!debt) return;
+
+        let revertBalance = false;
+        if (debt.wallet && debt.wallet !== 'none') {
+            revertBalance = confirm(`هل تريد حذف الدين الخاص بـ (${debt.person}) وعكس أثر المبلغ (${fmt(debt.remaining)} ج.س) على ${SOURCE_NAMES[debt.wallet]}؟\nاضغط موافق لعكس الأثر، أو إلغاء لحذف السجل فقط.`);
+            if (revertBalance) {
+                if (debt.type === 'receivable') state.balances[debt.wallet] += Number(debt.remaining || 0);
+                else state.balances[debt.wallet] -= Number(debt.remaining || 0);
+            } else {
+                if (!confirm('تأكيد حذف سجل الدين نهائياً بدون تعديل الرصيد؟')) return;
+            }
+        } else {
+            if (!confirm(`هل أنت متأكد من حذف الدين الخاص بـ (${debt.person}) نهائياً؟`)) return;
+        }
+
+        state.debts = state.debts.filter(d => d.id !== id);
+        saveState();
+    }
+
+    function settleDebt(id) {
+        const debt = state.debts.find(d => d.id === id);
+        if (!debt) return;
+        const payStr = prompt(`المتبقي: ${fmt(debt.remaining)} ج.س\nأدخل مبلغ السداد:`, debt.remaining);
+        if (payStr === null) return;
+        const pay = parseFloat(payStr);
+        if (isNaN(pay) || pay <= 0 || pay > debt.remaining) {
+            alert('مبلغ غير صحيح');
+            return;
+        }
+
+        const walletChoice = prompt('اختر الخزينة/البند (اكتب الرقم):\n1 = الكاش\n2 = بنكك\n3 = أوكاش\n4 = رصيد زين\n5 = رصيد سوداني\n6 = رصيد MTN', '1');
+        const map = { '1': 'cash', '2': 'bankak', '3': 'okash', '4': 'zain', '5': 'sudani', '6': 'mtn' };
+        const w = map[walletChoice] || 'cash';
+
+        const serialCode = consumeNextSerial();
+        if (debt.type === 'receivable') state.balances[w] += pay;
+        else state.balances[w] -= pay;
+
+        debt.remaining -= pay;
+        state.transactions.unshift({
+            id: Date.now(),
+            serial: serialCode,
+            date: todayStr(),
+            time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+            title: `${debt.type === 'receivable' ? 'تحصيل دين' : 'سداد دين'} (${SOURCE_NAMES[w]})`,
+            meta: `${debt.person}`,
+            amount: pay,
+            fee: 0,
+            isProfit: false
+        });
+
+        saveState();
+    }
+
+    function renderDebts() {
+        let rec = 0, pay = 0;
+        state.debts.forEach(d => {
+            if (Number(d.remaining) > 0) {
+                if (d.type === 'receivable') rec += Number(d.remaining);
+                else pay += Number(d.remaining);
+            }
+        });
+        document.getElementById('totalDebtsReceivable').textContent = fmt(rec);
+        document.getElementById('totalDebtsPayable').textContent = fmt(pay);
+
+        const container = document.getElementById('debtsList');
+        if (state.debts.length === 0) {
+            container.innerHTML = `<div class="card empty-state">لا توجد ديون مسجلة حالياً</div>`;
+            return;
+        }
+
+        container.innerHTML = state.debts.map(d => {
+            const isSettled = Number(d.remaining) <= 0;
+            return `
+                <div class="card" style="border-right: 4px solid ${isSettled ? 'var(--muted)' : (d.type === 'receivable' ? 'var(--success)' : 'var(--danger)')};">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+                        <div>
+                            <div style="font-weight:800;">${d.person} ${isSettled ? '<span class="badge badge-done">مسدد</span>' : ''}</div>
+                            <div style="font-size:0.74rem; color:var(--muted);">${d.type === 'receivable' ? 'دين ليك (طرفه)' : 'دين عليك (للناس)'} • الإجمالي: ${fmt(d.total)} • ${d.note || d.date}</div>
+                        </div>
+                        <div style="text-align:left;">
+                            <div style="font-weight:800; color:${isSettled ? 'var(--muted)' : (d.type === 'receivable' ? 'var(--success)' : 'var(--danger)')}; direction:ltr;">${fmt(d.remaining)}</div>
+                        </div>
+                    </div>
+                    <div class="debt-actions">
+                        ${!isSettled ? `<button class="btn-sm btn-success" onclick="settleDebt(${d.id})">سداد / تحصيل</button>` : ''}
+                        <button class="btn-sm btn-outline" onclick="openDebtModal(${d.id})">✏️ تعديل</button>
+                        <button class="btn-sm btn-danger" onclick="deleteDebt(${d.id})">🗑️ حذف</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    /* ---------------- AUDIT TABLES, CHART & LOGIC ---------------- */
+    function renderAuditSummary() {
+        const m = getFinancialMetrics();
+        const creditTot = getCreditTotal();
+        const recRows = state.debts.filter(d => d.type === 'receivable' && Number(d.remaining) > 0);
+        const payRows = state.debts.filter(d => d.type === 'payable' && Number(d.remaining) > 0);
+        const pendingItems = state.deferred.filter(d => Math.max(0, (Number(d.netTotal) || 0) - (Number(d.paidAmount) || 0)) > 0.01);
+
+        const maxChartVal = Math.max(
+            1,
+            Math.abs(m.totalWallets),
+            Math.abs(m.recDebts),
+            Math.abs(m.payDebts + m.pendingDeferred),
+            Math.abs(m.capitalAfterDeductions)
+        );
+
+        const chartBars = [
+            { label: 'مجموع الأرصدة الحالية', val: m.totalWallets, color: '#2563eb' },
+            { label: 'ديون ليك (طرف الناس)', val: m.recDebts, color: '#059669' },
+            { label: 'ديون عليك + مستحقات للغير', val: m.payDebts + m.pendingDeferred, color: '#dc2626' },
+            { label: 'رأس المال بعد الخصم', val: m.capitalAfterDeductions, color: '#0f172a' }
+        ].map(b => {
+            const pct = Math.min(100, Math.max(2, Math.round((Math.abs(b.val) / maxChartVal) * 100)));
+            return `
+                <div class="chart-bar-row">
+                    <div class="chart-bar-label"><span>${b.label}</span><span style="direction:ltr;">${fmt(b.val)}</span></div>
+                    <div class="chart-track"><div class="chart-fill" style="width:${pct}%; background:${b.color};"></div></div>
+                </div>
+            `;
+        }).join('');
+
+        document.getElementById('auditSummaryCard').innerHTML = `
+            <div class="section-title" style="margin-bottom:6px;">1. جدول الأرصدة الحالية (ج.س)</div>
+            <div class="table-wrap" style="margin-bottom:14px;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>الخزينة / البند</th>
+                            <th>الرصيد الحالي</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>💵 الكاش (الدرج)</td><td class="num-cell">${fmt(state.balances.cash)}</td></tr>
+                        <tr><td>🔴 بنكك</td><td class="num-cell">${fmt(state.balances.bankak)}</td></tr>
+                        <tr><td>🟠 أوكاش</td><td class="num-cell">${fmt(state.balances.okash)}</td></tr>
+                        <tr><td>📶 الرصيد - زين</td><td class="num-cell">${fmt(state.balances.zain)}</td></tr>
+                        <tr><td>📶 الرصيد - سوداني</td><td class="num-cell">${fmt(state.balances.sudani)}</td></tr>
+                        <tr><td>📶 الرصيد - MTN</td><td class="num-cell">${fmt(state.balances.mtn)}</td></tr>
+                        <tr><td><b>إجمالي بند الرصيد (3 شرائح)</b></td><td class="num-cell" style="color:var(--credit);">${fmt(creditTot)}</td></tr>
+                        <tr style="background:#f8fafc;">
+                            <td><b>مجموع الأرصدة الحالية</b></td>
+                            <td class="num-cell" style="color:var(--accent);">${fmt(m.totalWallets)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-title" style="margin-bottom:6px;">2. جدول الديون (ليك وعليك)</div>
+            <div class="table-wrap" style="margin-bottom:14px;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>النوع</th>
+                            <th>الاسم</th>
+                            <th>المتبقي (ج.س)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${recRows.map(d => `<tr><td><span class="badge badge-done">ليك</span></td><td>${d.person}</td><td class="num-cell" style="color:var(--success);">+${fmt(d.remaining)}</td></tr>`).join('')}
+                        ${payRows.map(d => `<tr><td><span class="badge badge-pending">عليك</span></td><td>${d.person}</td><td class="num-cell" style="color:var(--danger);">-${fmt(d.remaining)}</td></tr>`).join('')}
+                        ${(recRows.length === 0 && payRows.length === 0) ? `<tr><td colspan="3" style="text-align:center; color:var(--muted);">لا توجد ديون نشطة</td></tr>` : ''}
+                        <tr style="background:#f8fafc;">
+                            <td colspan="2"><b>إجمالي ديون ليك / إجمالي ديون عليك</b></td>
+                            <td class="num-cell">+${fmt(m.recDebts)} / -${fmt(m.payDebts)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-title" style="margin-bottom:6px;">3. جدول المستحقات للغير (أمانات آجلة)</div>
+            <div class="table-wrap" style="margin-bottom:14px;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>الرقم المتسلسل</th>
+                            <th>المستلم</th>
+                            <th>المتبقي للغير (ج.س)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${pendingItems.map(item => {
+                            const rem = Math.max(0, (Number(item.netTotal) || 0) - (Number(item.paidAmount) || 0));
+                            return `<tr><td><span class="serial-pill">${item.serial || item.ref}</span></td><td>${item.customer} (${SOURCE_NAMES[item.app]})</td><td class="num-cell" style="color:var(--warning);">-${fmt(rem)}</td></tr>`;
+                        }).join('')}
+                        ${pendingItems.length === 0 ? `<tr><td colspan="3" style="text-align:center; color:var(--muted);">لا توجد مستحقات آجلة للغير</td></tr>` : ''}
+                        <tr style="background:#f8fafc;">
+                            <td colspan="2"><b>إجمالي المستحقات للغير</b></td>
+                            <td class="num-cell" style="color:var(--warning);">-${fmt(m.pendingDeferred)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-title" style="margin-bottom:6px;">4. جدول الإجماليات</div>
+            <div class="table-wrap" style="margin-bottom:14px;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>الإجمالي</th>
+                            <th>القيمة (ج.س)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>إجمالي الفائدة (العمولات)</td><td class="num-cell" style="color:var(--success);">+${fmt(m.totalFees)}</td></tr>
+                        <tr><td>إجمالي المنصرفات</td><td class="num-cell" style="color:var(--danger);">-${fmt(m.totalExpenses)}</td></tr>
+                        <tr><td><b>صافي الفائدة</b></td><td class="num-cell" style="color:${m.netFee >= 0 ? 'var(--success)' : 'var(--danger)'};">${fmt(m.netFee)}</td></tr>
+                        <tr><td><b>صافي رأس المال (الأرصدة + ديون ليك)</b></td><td class="num-cell">${fmt(m.netCapital)}</td></tr>
+                        <tr style="background:#eff6ff;">
+                            <td><b>رأس المال بعد خصم الديون والمستحقات للغير</b></td>
+                            <td class="num-cell" style="color:var(--primary); font-size:0.88rem;">${fmt(m.capitalAfterDeductions)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-title" style="margin-bottom:4px;">5. المخطط البياني للموقف المالي</div>
+            <div class="chart-box">${chartBars}</div>
+        `;
+    }
+
+    function renderAuditInputs() {
+        const keys = ['cash', 'bankak', 'okash', 'zain', 'sudani', 'mtn'];
+        document.getElementById('auditInputsContainer').innerHTML = `
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>الخزينة / الشريحة</th>
+                            <th>بالنظام</th>
+                            <th>الفعلي الآن</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${keys.map(w => `
+                            <tr>
+                                <td><b>${SOURCE_NAMES[w]}</b></td>
+                                <td class="num-cell">${fmt(state.balances[w])}</td>
+                                <td><input type="number" id="actual-${w}" value="${state.balances[w]}" step="any" style="padding:6px 8px; font-size:0.85rem;"></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    function calculateAudit() {
+        const keys = ['cash', 'bankak', 'okash', 'zain', 'sudani', 'mtn'];
+        let totalDiff = 0;
+        let rowsHtml = '';
+
+        keys.forEach(w => {
+            const sys = Number(state.balances[w]) || 0;
+            const act = parseFloat(document.getElementById('actual-' + w).value) || 0;
+            const diff = act - sys;
+            totalDiff += diff;
+            const color = diff === 0 ? 'var(--success)' : (diff > 0 ? 'var(--accent)' : 'var(--danger)');
+            const label = diff === 0 ? 'مطابق ✓' : (diff > 0 ? `زيادة +${fmt(diff)}` : `عجز ${fmt(diff)}`);
+            rowsHtml += `
+                <tr>
+                    <td><b>${SOURCE_NAMES[w]}</b></td>
+                    <td class="num-cell">${fmt(sys)}</td>
+                    <td class="num-cell">${fmt(act)}</td>
+                    <td class="num-cell" style="color:${color};">${label}</td>
+                </tr>
+            `;
+        });
+
+        const resCard = document.getElementById('auditResultCard');
+        resCard.style.display = 'block';
+        resCard.innerHTML = `
+            <div class="section-title">جدول نتيجة المطابقة</div>
+            <div class="table-wrap" style="margin-bottom:10px;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>الخزينة / الشريحة</th>
+                            <th>النظام</th>
+                            <th>الفعلي</th>
+                            <th>الفرق</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                        <tr style="background:#f8fafc;">
+                            <td colspan="3"><b>إجمالي الفروقات</b></td>
+                            <td class="num-cell" style="color:${totalDiff === 0 ? 'var(--success)' : 'var(--danger)'}">${totalDiff === 0 ? 'مطابق 100%' : fmt(totalDiff)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button class="btn-sm btn-pdf" style="width:100%;" onclick="exportAuditPDF()">📄 تصدير تقرير الجرد كامل إلى PDF</button>
+        `;
+    }
+
+    function clearTxFilters() {
+        const dInp = document.getElementById('txFilterDate');
+        const sInp = document.getElementById('txFilterSerial');
+        if (dInp) dInp.value = '';
+        if (sInp) sInp.value = '';
+        renderTransactionsTable();
+    }
+
+    function getFilteredTransactions() {
+        const dInp = document.getElementById('txFilterDate');
+        const sInp = document.getElementById('txFilterSerial');
+        const selectedDate = dInp ? dInp.value : '';
+        const serialQ = sInp ? sInp.value.trim().toLowerCase() : '';
+
+        return state.transactions.filter(t => {
+            const matchDate = !selectedDate || t.date === selectedDate;
+            const matchSerial = !serialQ
+                || (t.serial && t.serial.toLowerCase().includes(serialQ))
+                || (t.title && t.title.toLowerCase().includes(serialQ))
+                || (t.meta && t.meta.toLowerCase().includes(serialQ));
+            return matchDate && matchSerial;
+        });
+    }
+
+    function renderTransactionsTable() {
+        const container = document.getElementById('fullTxTableContainer');
+        if (!container) return;
+        const list = getFilteredTransactions();
+
+        if (list.length === 0) {
+            container.innerHTML = `<div class="empty-state" style="padding:12px;">لا توجد عمليات مطابقة للبحث</div>`;
+            return;
+        }
+        container.innerHTML = `
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>الرقم المتسلسل</th>
+                            <th>التاريخ والوقت</th>
+                            <th>العملية</th>
+                            <th>التفاصيل</th>
+                            <th>المبلغ</th>
+                            <th>العمولة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${list.map(t => `
+                            <tr>
+                                <td><span class="serial-pill">${t.serial || '-'}</span></td>
+                                <td style="white-space:nowrap; font-size:0.7rem;">${t.date}<br>${t.time}</td>
+                                <td><b>${t.title}</b></td>
+                                <td style="font-size:0.72rem; color:var(--muted);">${t.meta || '-'}</td>
+                                <td class="num-cell" style="color:${t.amount < 0 ? 'var(--danger)' : 'var(--text)'}">${t.amount < 0 ? '-' : ''}${fmt(Math.abs(t.amount))}</td>
+                                <td class="num-cell" style="color:var(--success);">${t.fee > 0 ? '+' + fmt(t.fee) : '0'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    /* ---------------- PDF & EXCEL EXPORTS ---------------- */
+    function openPrintReport(title, bodyHtml) {
+        const win = window.open('', '_blank');
+        if (!win) {
+            alert('يرجى السماح بفتح النوافذ المنبثقة (Pop-ups) لتصدير ملف PDF');
+            return;
+        }
+        win.document.write(`
+            <!DOCTYPE html>
+            <html lang="ar" dir="rtl">
+            <head>
+                <meta charset="UTF-8">
+                <title>${title}</title>
+                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+                <style>
+                    body { font-family: 'Cairo', sans-serif; color: #0f172a; padding: 20px; background: #fff; }
+                    .rep-header { border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+                    .rep-title { font-size: 1.25rem; font-weight: 800; }
+                    .rep-meta { font-size: 0.8rem; color: #475569; }
+                    h3 { font-size: 1rem; margin: 14px 0 8px; color: #0f172a; }
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 0.82rem; }
+                    th, td { border: 1px solid #cbd5e1; padding: 7px 8px; text-align: right; }
+                    th { background: #f1f5f9; font-weight: 800; }
+                    .num { direction: ltr; text-align: left; font-weight: 700; }
+                    .code { font-family: monospace; direction: ltr; font-weight: 700; }
+                    @media print { .no-print { display: none; } body { padding: 0; } }
+                </style>
+            </head>
+            <body>
+                <div class="no-print" style="margin-bottom:12px;">
+                    <button onclick="window.print()" style="padding:8px 16px; background:#0f172a; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">🖨️ حفظ / طباعة PDF</button>
+                </div>
+                <div class="rep-header">
+                    <div class="rep-title">${title}</div>
+                    <div class="rep-meta">تاريخ التقرير: ${todayStr()} • ${new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</div>
+                </div>
+                ${bodyHtml}
+            </body>
+            </html>
+        `);
+        win.document.close();
+        setTimeout(() => { win.print(); }, 350);
+    }
+
+    function exportAuditPDF() {
+        const m = getFinancialMetrics();
+        const keys = ['cash', 'bankak', 'okash', 'zain', 'sudani', 'mtn'];
+        const rows = keys.map(w => {
+            const sys = Number(state.balances[w]) || 0;
+            const actEl = document.getElementById('actual-' + w);
+            const act = actEl ? (parseFloat(actEl.value) || 0) : sys;
+            const diff = act - sys;
+            return `<tr><td>${SOURCE_NAMES[w]}</td><td class="num">${fmt(sys)}</td><td class="num">${fmt(act)}</td><td class="num">${diff === 0 ? '0' : (diff > 0 ? '+' + fmt(diff) : fmt(diff))}</td></tr>`;
+        }).join('');
+
+        const debtRows = state.debts.filter(d => Number(d.remaining) > 0).map(d =>
+            `<tr><td>${d.type === 'receivable' ? 'دين ليك' : 'دين عليك'}</td><td>${d.person}</td><td class="num">${fmt(d.remaining)}</td></tr>`
+        ).join('') || `<tr><td colspan="3" style="text-align:center;">لا توجد ديون نشطة</td></tr>`;
+
+        const pendingRows = state.deferred.map(d => {
+            const rem = Math.max(0, (Number(d.netTotal) || 0) - (Number(d.paidAmount) || 0));
+            return rem > 0.01 ? `<tr><td class="code">${d.serial || d.ref}</td><td>${d.customer} (${SOURCE_NAMES[d.app]})</td><td class="num">${fmt(rem)}</td></tr>` : '';
+        }).filter(Boolean).join('') || `<tr><td colspan="3" style="text-align:center;">لا توجد مستحقات للغير</td></tr>`;
+
+        const html = `
+            <h3>1. جدول الأرصدة ومطابقة الجرد (ج.س)</h3>
+            <table>
+                <thead><tr><th>الخزينة / الشريحة</th><th>رصيد النظام</th><th>الرصيد الفعلي</th><th>الفرق</th></tr></thead>
+                <tbody>
+                    ${rows}
+                    <tr><td><b>المجموع الكلي للأرصدة</b></td><td class="num"><b>${fmt(m.totalWallets)}</b></td><td class="num">-</td><td class="num">-</td></tr>
+                </tbody>
+            </table>
+
+            <h3>2. جدول الديون (ليك وعليك)</h3>
+            <table>
+                <thead><tr><th>النوع</th><th>الاسم</th><th>المتبقي (ج.س)</th></tr></thead>
+                <tbody>${debtRows}</tbody>
+            </table>
+
+            <h3>3. جدول المستحقات للغير</h3>
+            <table>
+                <thead><tr><th>الرقم المتسلسل</th><th>المستلم</th><th>المتبقي للغير (ج.س)</th></tr></thead>
+                <tbody>${pendingRows}</tbody>
+            </table>
+
+            <h3>4. جدول الإجماليات</h3>
+            <table>
+                <thead><tr><th>البند</th><th>القيمة (ج.س)</th></tr></thead>
+                <tbody>
+                    <tr><td>إجمالي الفائدة (العمولات)</td><td class="num">${fmt(m.totalFees)}</td></tr>
+                    <tr><td>إجمالي المنصرفات</td><td class="num">${fmt(m.totalExpenses)}</td></tr>
+                    <tr><td><b>صافي الفائدة</b></td><td class="num"><b>${fmt(m.netFee)}</b></td></tr>
+                    <tr><td><b>صافي رأس المال (الأرصدة + ديون ليك)</b></td><td class="num"><b>${fmt(m.netCapital)}</b></td></tr>
+                    <tr><td>ديون عليك (للناس)</td><td class="num">${fmt(m.payDebts)}</td></tr>
+                    <tr><td>مبالغ مستحقة للغير (أمانات آجلة)</td><td class="num">${fmt(m.pendingDeferred)}</td></tr>
+                    <tr><td><b>رأس المال بعد خصم الديون والمستحقات للغير</b></td><td class="num"><b>${fmt(m.capitalAfterDeductions)}</b></td></tr>
+                </tbody>
+            </table>
+        `;
+        openPrintReport('تقرير الجرد والحالة المالية - الصراف الذكي', html);
+    }
+
+    function exportTransactionsPDF() {
+        const list = getFilteredTransactions();
+        const filterInp = document.getElementById('txFilterDate');
+        const selectedDate = filterInp ? filterInp.value : '';
+
+        const txRows = list.length
+            ? list.map(t => `
+                <tr>
+                    <td class="code">${t.serial || '-'}</td>
+                    <td>${t.date} ${t.time}</td>
+                    <td>${t.title}</td>
+                    <td>${t.meta || '-'}</td>
+                    <td class="num">${t.amount < 0 ? '-' : ''}${fmt(Math.abs(t.amount))}</td>
+                    <td class="num">${fmt(t.fee || 0)}</td>
+                </tr>
+            `).join('')
+            : `<tr><td colspan="6" style="text-align:center;">لا توجد حركات مسجلة</td></tr>`;
+
+        const html = `
+            <h3>سجل العمليات${selectedDate ? ' (بتاريخ ' + selectedDate + ')' : ''}</h3>
+            <table>
+                <thead><tr><th>الرقم المتسلسل</th><th>التاريخ والوقت</th><th>العملية</th><th>التفاصيل</th><th>المبلغ (ج.س)</th><th>العمولة</th></tr></thead>
+                <tbody>${txRows}</tbody>
+            </table>
+        `;
+        openPrintReport('سجل العمليات - الصراف الذكي', html);
+    }
+
+    function exportFullExcel() {
+        const m = getFinancialMetrics();
+        const csvEscape = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+        const lines = [];
+
+        lines.push(['القسم', 'الرقم المتسلسل', 'البند / العملية', 'التفاصيل / النوع', 'المبلغ / القيمة', 'العمولة / المسدد', 'المتبقي / الحالة', 'التاريخ'].map(csvEscape).join(','));
+
+        ['cash', 'bankak', 'okash', 'zain', 'sudani', 'mtn'].forEach(w => {
+            lines.push(['الخزائن والرصيد', '-', SOURCE_NAMES[w], 'رصيد حالي', state.balances[w], 0, 'نشط', todayStr()].map(csvEscape).join(','));
+        });
+
+        lines.push(['الجرد والملخص', '-', 'إجمالي الفائدة (العمولات)', 'ملخص مالي', m.totalFees, '', '', todayStr()].map(csvEscape).join(','));
+        lines.push(['الجرد والملخص', '-', 'صافي الفائدة (بعد المنصرفات)', 'ملخص مالي', m.netFee, '', '', todayStr()].map(csvEscape).join(','));
+        lines.push(['الجرد والملخص', '-', 'صافي رأس المال', 'أرصدة + ديون ليك', m.netCapital, '', '', todayStr()].map(csvEscape).join(','));
+        lines.push(['الجرد والملخص', '-', 'ديون عليك + مستحقات للغير', 'خصومات', m.payDebts + m.pendingDeferred, '', '', todayStr()].map(csvEscape).join(','));
+        lines.push(['الجرد والملخص', '-', 'رأس المال بعد خصم الديون والمستحقات للغير', 'النتيجة النهائية', m.capitalAfterDeductions, '', '', todayStr()].map(csvEscape).join(','));
+
+        state.transactions.forEach(t => {
+            lines.push(['سجل العمليات', t.serial || '-', t.title, t.meta || '', t.amount, t.fee || 0, 'مسجل', `${t.date} ${t.time}`].map(csvEscape).join(','));
+        });
+
+        state.deferred.forEach(d => {
+            const rem = Math.max(0, d.netTotal - d.paidAmount);
+            lines.push(['العمليات الآجلة', d.serial || d.ref, `المستلم: ${d.customer}`, `تطبيق ${SOURCE_NAMES[d.app]} (إشعار ${d.ref})`, d.netTotal, d.paidAmount, rem <= 0.01 ? 'مكتملة' : `متبقي ${rem}`, d.date].map(csvEscape).join(','));
+        });
+
+        state.debts.forEach(d => {
+            lines.push(['دفتر الديون', '-', d.person, d.type === 'receivable' ? 'دين ليك' : 'دين عليك', d.total, d.total - d.remaining, d.remaining, d.date].map(csvEscape).join(','));
+        });
+
+        const csvContent = "\uFEFF" + lines.join("\n");
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `alsarraf_full_report_${todayStr()}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    }
+
+    /* ---------------- SETTINGS & BACKUP ---------------- */
+    function renderSettings() {
+        const feeKeys = ['bankak', 'okash', 'zain', 'sudani', 'mtn', 'transfer'];
+        const labels = {
+            bankak: 'عمولة تطبيق بنكك',
+            okash: 'عمولة تطبيق أوكاش',
+            zain: 'عمولة رصيد زين',
+            sudani: 'عمولة رصيد سوداني',
+            mtn: 'عمولة رصيد MTN',
+            transfer: 'عمولة التحويل بين التطبيقات/الرصيد'
+        };
+        document.getElementById('feeSettingsContainer').innerHTML = feeKeys.map(k => {
+            const rule = state.fees[k] || { mode: 'percent', value: 0 };
+            return `
+                <div style="margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--border);">
+                    <label style="font-size:0.86rem;">${labels[k]}</label>
+                    <div class="row-2">
+                        <select id="fee-mode-${k}" onchange="updateFeeRule('${k}')">
+                            <option value="percent" ${rule.mode === 'percent' ? 'selected' : ''}>نسبة مئوية (%)</option>
+                            <option value="fixed" ${rule.mode === 'fixed' ? 'selected' : ''}>قيمة ثابتة (ج.س)</option>
+                        </select>
+                        <input type="number" id="fee-val-${k}" value="${rule.value}" step="any" oninput="updateFeeRule('${k}')">
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        ['cash', 'bankak', 'okash', 'zain', 'sudani', 'mtn'].forEach(w => {
+            document.getElementById('set-bal-' + w).value = state.balances[w];
+        });
+
+        const lbl = document.getElementById('lastBackupLabel');
+        if (lbl) {
+            lbl.textContent = state.lastBackupAt ? `آخر تصدير: ${state.lastBackupAt}` : 'آخر تصدير: لم يتم بعد';
+        }
+    }
+
+    function updateFeeRule(k) {
+        state.fees[k] = {
+            mode: document.getElementById('fee-mode-' + k).value,
+            value: parseFloat(document.getElementById('fee-val-' + k).value) || 0
+        };
+        saveState();
+    }
+
+    function saveManualBalances() {
+        ['cash', 'bankak', 'okash', 'zain', 'sudani', 'mtn'].forEach(w => {
+            state.balances[w] = parseFloat(document.getElementById('set-bal-' + w).value) || 0;
+        });
+        alert('تم تحديث الأرصدة بنجاح');
+        saveState();
+    }
+
+    function exportBackup() {
+        state.lastBackupAt = `${todayStr()} ${new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}`;
+        const serialized = JSON.stringify(state, null, 2);
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+        syncIndexedDB(state);
+
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(serialized);
+        const a = document.createElement('a');
+        a.setAttribute("href", dataStr);
+        a.setAttribute("download", `alsarraf_backup_${todayStr()}.json`);
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        renderAll();
+    }
+
+    function importBackup(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const parsed = JSON.parse(e.target.result);
+                if (parsed.balances && parsed.fees) {
+                    const merged = JSON.parse(JSON.stringify(defaultState));
+                    merged.txCounter = Number(parsed.txCounter) || (Array.isArray(parsed.transactions) ? parsed.transactions.length : 0);
+                    merged.balances = Object.assign(merged.balances, parsed.balances || {});
+                    merged.fees = Object.assign(merged.fees, parsed.fees || {});
+                    merged.transactions = Array.isArray(parsed.transactions) ? parsed.transactions : [];
+                    merged.deferred = Array.isArray(parsed.deferred) ? parsed.deferred : [];
+                    merged.debts = Array.isArray(parsed.debts) ? parsed.debts : [];
+                    merged.lastBackupAt = parsed.lastBackupAt || null;
+                    state = merged;
+                    saveState();
+                    alert('تم استعادة النسخة الاحتياطية بنجاح');
+                }
+            } catch (err) {
+                alert('ملف غير صالح');
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function loadDemoData() {
+        const dNow = new Date();
+        state = {
+            txCounter: 4,
+            balances: { cash: 450000, bankak: 820000, okash: 310000, zain: 65000, sudani: 42000, mtn: 28000 },
+            fees: {
+                bankak: { mode: 'percent', value: 1 },
+                okash: { mode: 'percent', value: 1.5 },
+                zain: { mode: 'percent', value: 0 },
+                sudani: { mode: 'percent', value: 0 },
+                mtn: { mode: 'percent', value: 0 },
+                transfer: { mode: 'fixed', value: 0 }
+            },
+            transactions: [
+                { id: 4, serial: formatSerialCode(4, dNow), date: todayStr(), time: '12:15 م', title: 'منصرف من الكاش', meta: 'كهرباء ومصاريف تشغيل', amount: -1000, fee: 0, isProfit: false },
+                { id: 3, serial: formatSerialCode(3, dNow), date: todayStr(), time: '12:00 م', title: 'إضافة كاش مباشر (شحن)', meta: 'الخدمة: شحن', amount: 25000, fee: 0, isProfit: false },
+                { id: 2, serial: formatSerialCode(2, dNow), date: todayStr(), time: '11:30 ص', title: 'استلام أوكاش ⬅ كاش فوري', meta: 'تسليم مباشر', amount: 100000, fee: 1500, isProfit: true },
+                { id: 1, serial: formatSerialCode(1, dNow), date: todayStr(), time: '10:15 ص', title: 'كاش 3,000 ⬅ رصيد زين (2,400 مسحوب)', meta: 'عمولة مخصومة: 600', amount: 3000, fee: 600, isProfit: true }
+            ],
+            deferred: [
+                {
+                    id: 101,
+                    serial: formatSerialCode(5, dNow),
+                    date: todayStr(),
+                    time: '10:15 ص',
+                    app: 'bankak',
+                    customer: 'محمد أحمد',
+                    ref: '984512',
+                    grossAmount: 200000,
+                    fee: 2000,
+                    netTotal: 198000,
+                    paidAmount: 80000,
+                    payouts: [{ serial: formatSerialCode(6, dNow), date: `${todayStr()} 10:40 ص`, amount: 80000, method: 'cash' }]
+                }
+            ],
+            debts: [
+                { id: 201, type: 'receivable', person: 'متجر البركة', total: 75000, remaining: 75000, wallet: 'none', note: 'تحويل بنكك آجل', date: todayStr() },
+                { id: 202, type: 'payable', person: 'أحمد حسن', total: 30000, remaining: 30000, wallet: 'none', note: 'مستحق للغير', date: todayStr() }
+            ],
+            lastBackupAt: state.lastBackupAt || null
+        };
+        state.txCounter = 6;
+        saveState();
+        switchTab('home');
+    }
+
+    function resetAllData() {
+        if (confirm('هل أنت متأكد من تصفير جميع الأرصدة والحركات والديون؟')) {
+            state = JSON.parse(JSON.stringify(defaultState));
+            saveState();
+            switchTab('home');
+        }
+    }
+
+    /* ---------------- MAIN RENDER ---------------- */
+    function renderAll() {
+        ['cash', 'bankak', 'okash', 'zain', 'sudani', 'mtn'].forEach(w => {
+            const el = document.getElementById('bal-' + w);
+            if (el) el.textContent = fmt(state.balances[w]);
+        });
+        const creditTotEl = document.getElementById('bal-credit-total');
+        if (creditTotEl) creditTotEl.textContent = fmt(getCreditTotal());
+
+        ['bankak', 'okash'].forEach(app => {
+            const f = state.fees[app] || { mode: 'percent', value: 0 };
+            const tagEl = document.getElementById('tag-' + app);
+            if (tagEl) tagEl.textContent = f.mode === 'percent' ? `${f.value}%` : `${fmt(f.value)} ج.س`;
+        });
+
+        const m = getFinancialMetrics();
+        document.getElementById('hdrTodayProfit').textContent = fmt(m.todayProfit);
+        document.getElementById('hdrNetCapital').textContent = fmt(m.capitalAfterDeductions);
+
+        const banner = document.getElementById('backupReminderBanner');
+        const hasActivity = state.transactions.length > 0 || state.debts.length > 0 || state.deferred.length > 0;
+        let needsBackup = false;
+        if (hasActivity) {
+            if (!state.lastBackupAt) {
+                needsBackup = true;
+            } else {
+                const bDate = new Date(state.lastBackupAt.split(' ')[0]);
+                const diffDays = (new Date() - bDate) / (1000 * 60 * 60 * 24);
+                if (diffDays >= 7) needsBackup = true;
+            }
+        }
+        banner.style.display = needsBackup ? 'flex' : 'none';
+
+        const pendingCount = state.deferred.filter(d => (d.netTotal - d.paidAmount) > 0.01).length;
+        document.getElementById('homePendingCount').textContent = pendingCount;
+        const badge = document.getElementById('navPendingBadge');
+        badge.textContent = pendingCount;
+        badge.style.display = pendingCount > 0 ? 'inline-block' : 'none';
+
+        renderTransactionsTable();
+        renderDeferredList();
+        renderDebts();
+        if (document.getElementById('tab-audit').classList.contains('active')) {
+            renderAuditSummary();
+        }
+        if (document.getElementById('tab-settings').classList.contains('active')) {
+            const lbl = document.getElementById('lastBackupLabel');
+            if (lbl) lbl.textContent = state.lastBackupAt ? `آخر تصدير: ${state.lastBackupAt}` : 'آخر تصدير: لم يتم بعد';
+        }
+    }
+
+    syncIndexedDB(state);
+    renderAll();
+</script>
+</body>
+</html>
